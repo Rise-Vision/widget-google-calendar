@@ -67,13 +67,8 @@
                 <label for="dateFormat">{{"date.format.label" | translate}}</label>
                 <div class="row">
                   <div class="col-xs-6 col-md-3">
-                    <select id="dateFormat" name="dateFormat" ng-model="settings.additionalParams.dateFormat" class="form-control">
-                      <option value="dd/mm/yy">dd/mm/yy</option>
-                      <option value="mm/dd/yy">mm/dd/yy</option>
-                      <option value="yy/mm/dd">yy/mm/dd</option>
-                      <option value="MMMM d">MMMM d</option>
-                      <option value="yy">yy</option>
-                      <option value="dd-MMM-yyyy">dd-MMM-yyyy</option>
+                    <select id="dateFormat" name="dateFormat" ng-model="settings.additionalParams.dateFormat"
+                            ng-options="format.label for format in formats" class="form-control">
                     </select>
                   </div>
                 </div>
