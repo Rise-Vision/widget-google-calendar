@@ -47,5 +47,19 @@
   "description-font": {
     "label": "Description Font",
     "text": "Description Sample Text"
+  },
+  "month-names": {
+    "jan": "January",
+    "feb": "February",
+    "mar": "March",
+    "apr": "April",
+    "may": "May",
+    "jun": "June",
+    "jul": "July",
+    "aug": "August",
+    "sep": "September",
+    "oct": "October",
+    "nov": "November",
+    "dec": "December"
   }
 }
