@@ -28,13 +28,19 @@
     </ul>
   </div>
 
-  <script src="//rvashow2.appspot.com/gadgets/gadgets.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="//s3.amazonaws.com/rise-common/scripts/greensock/ThrowPropsPlugin.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.11.7/TweenLite.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.11.7/plugins/CSSPlugin.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.11.7/utils/Draggable.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.11.7/plugins/ScrollToPlugin.min.js"></script>
+
+  <!-- build:e2eMockData -->
+  <!-- endbuild -->
+
+  <!-- build:e2egadgets -->
+  <script src="//rvashow2.appspot.com/gadgets/gadgets.min.js"></script>
+  <!-- endbuild -->
 
   <!-- build:js js/widget.min.js -->
   <script src="components/widget-common/dist/common.js"></script>
@@ -50,6 +56,8 @@
   <script src="widget/provider.js"></script>
   <!-- endbuild -->
 
+  <!-- build:e2eClient -->
   <script src="https://apis.google.com/js/client.js?onload=init"></script>
+  <!-- endbuild -->
 </body>
 </html>

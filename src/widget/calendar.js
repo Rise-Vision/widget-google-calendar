@@ -136,47 +136,49 @@ RiseVision.Calendar = (function (gadgets) {
   /*
    *  Public Methods
    */
-  function getAdditionalParams(name, value) {
-    if (name === "additionalParams" && value) {
-      params = JSON.parse(value);
+  function getAdditionalParams(names, values) {
+    if (Array.isArray(names) && names.length > 0 && names[0] === "additionalParams") {
+      if (Array.isArray(values) && values.length > 0) {
+        params = JSON.parse(values[0]);
 
-      // Load fonts.
-      var fontSettings = [
-        {
-          "class": "date",
-          "fontSetting": params.dateFont
-        },
-        {
-          "class": "time",
-          "fontSetting": params.timeFont
-        },
-        {
-          "class": "summary",
-          "fontSetting": params.titleFont
-        },
-        {
-          "class": "location",
-          "fontSetting": params.locationFont
-        },
-        {
-          "class": "description",
-          "fontSetting": params.descriptionFont
+        // Load fonts.
+        var fontSettings = [
+          {
+            "class": "date",
+            "fontSetting": params.dateFont
+          },
+          {
+            "class": "time",
+            "fontSetting": params.timeFont
+          },
+          {
+            "class": "summary",
+            "fontSetting": params.titleFont
+          },
+          {
+            "class": "location",
+            "fontSetting": params.locationFont
+          },
+          {
+            "class": "description",
+            "fontSetting": params.descriptionFont
+          }
+        ];
+
+        utils.loadFonts(fontSettings);
+
+        // Store the base HTML in a DocumentFragment so that it can be used later.
+        fragment = document.createDocumentFragment();
+        daysNode = document.getElementById("days");
+
+        // Add the HTML to the fragment.
+        while (daysNode.firstChild) {
+          fragment.appendChild(daysNode.firstChild);
         }
-      ];
 
-      utils.loadFonts(fontSettings);
-
-      // Store the base HTML in a DocumentFragment so that it can be used later.
-      fragment = document.createDocumentFragment();
-      daysNode = document.getElementById("days");
-
-      // Add the HTML to the fragment.
-      while (daysNode.firstChild) {
-        fragment.appendChild(daysNode.firstChild);
+        $container.height(prefs.getInt("rsH"));
+        getEventsList();
       }
-
-      $container.height(prefs.getInt("rsH"));
-      getEventsList();
     }
   }
 

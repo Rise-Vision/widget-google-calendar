@@ -71,6 +71,6 @@ function init() {
 
   gapi.client.load("calendar", "v3").then(function() {
     gadgets.rpc.register("rsparam_set_" + id, RiseVision.Calendar.getAdditionalParams);
-    gadgets.rpc.call("", "rsparam_get", null, id, "additionalParams");
+    gadgets.rpc.call("", "rsparam_get", null, id, ["additionalParams"]);
   });
 }

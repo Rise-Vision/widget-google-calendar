@@ -120,14 +120,38 @@
     runSequence("json-move", "json-combine", cb);
   });
 
-  gulp.task("build", function (cb) {
-    runSequence(["clean", "config"], ["source", "fonts", "i18n"], cb);
+  gulp.task("watch",function(){
+    gulp.watch("./src/**/*", ["build"]);
   });
 
-  gulp.task("html:e2e", factory.htmlE2E());
+  gulp.task("webdriver_update", factory.webdriveUpdate());
 
-  gulp.task("test:unit:ng", factory.testUnitAngular(
-    {testFiles: [
+  // e2e testing
+  gulp.task("html:e2e", factory.htmlE2E({
+    files: ["./src/settings.html", "./src/widget.html"],
+    e2eClient: "../test/e2e/calendar-api-mock.js",
+    e2eMockData: "../test/mock-data.js"
+  }));
+
+  gulp.task("e2e:server", ["config", "html:e2e"], factory.testServer());
+
+  gulp.task("test:e2e:settings", ["webdriver_update"], factory.testE2EAngular({
+    testFiles: "test/e2e/settings-scenarios.js"}
+  ));
+
+  gulp.task("test:e2e:widget", factory.testE2E({
+      testFiles: "test/e2e/widget-scenarios.js"}
+  ));
+
+  gulp.task("e2e:server-close", factory.testServerClose());
+
+  gulp.task("test:e2e", function(cb) {
+    runSequence(["html:e2e", "e2e:server"], "test:e2e:settings", "test:e2e:widget", "e2e:server-close", cb);
+  });
+
+  // Unit testing
+  gulp.task("test:unit:settings", factory.testUnitAngular({
+    testFiles: [
       "src/components/jquery/dist/jquery.js",
       "src/components/q/q.js",
       "src/components/angular/angular.js",
@@ -144,28 +168,40 @@
       "src/config/test.js",
       "src/settings/settings-app.js",
       "src/settings/**/*.js",
-      "test/unit/**/*spec.js"]}
+      "test/unit/**/*spec.js"]
+    }
   ));
 
-  gulp.task("webdriver_update", factory.webdriveUpdate());
-  gulp.task("e2e:server-close", factory.testServerClose());
-  gulp.task("test:metrics", factory.metrics());
+  gulp.task("test:unit:widget", factory.testUnitAngular({
+    testFiles: [
+      "src/components/jquery/dist/jquery.js",
+      "node_modules/widget-tester/mocks/gadget-mocks.js",
+      "src/config/test.js",
+      "src/components/widget-common/dist/common.js",
+      "src/widget/main.js",
+      "src/widget/provider.js",
+      "src/widget/calendar.js",
+      "src/widget/day.js",
+      "src/widget/event.js",
+      "test/unit/widget/**/*spec.js"]
+    }
+  ));
 
-  gulp.task("e2e:server", ["config", "html:e2e"], factory.testServer());
-
-  gulp.task("test:e2e:settings", ["webdriver_update", "html:e2e", "e2e:server"], factory.testE2EAngular());
-
-  gulp.task("test", function(cb) {
-    runSequence("test:unit:ng", "test:e2e:settings", "e2e:server-close", "test:metrics", cb);
+  gulp.task("test:unit", function(cb) {
+    runSequence("test:unit:settings", "test:unit:widget", cb);
   });
 
-  gulp.task("dev",function(){
-    console.log("watching ./src/**/* for changes");
-    gulp.watch("./src/**/*", ["build"]);
+  gulp.task("test:metrics", factory.metrics());
+
+  gulp.task("test", function(cb) {
+    runSequence("test:e2e", "test:unit", "test:metrics", cb);
+  });
+
+  gulp.task("build", function (cb) {
+    runSequence(["clean", "config"], ["source", "fonts", "i18n"], cb);
   });
 
   gulp.task("default", function(cb) {
     runSequence("test", "build", cb);
   });
-
 })();
