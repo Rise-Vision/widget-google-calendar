@@ -13,7 +13,7 @@
 
   browser.driver.manage().window().setSize(1024, 768);
 
-  describe("Google Spreadsheet Settings - e2e Testing", function() {
+  describe("Google Calendar Settings - e2e Testing", function() {
     beforeEach(function () {
       browser.get("/src/settings-e2e.html");
     });
