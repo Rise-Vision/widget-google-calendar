@@ -7,11 +7,13 @@
 
   window.gapi.client = {
     load: function (name, version) {
-      var promise = new Promise(function(resolve, reject) {
-        resolve();
-      });
-
-      return promise;
+      return {
+        then: function(onFulfilled, onRejected) {
+          if (onFulfilled) {
+            onFulfilled();
+          }
+        }
+      };
     },
     setApiKey: function (apiKey) {}
   };
@@ -27,8 +29,10 @@
   gapi.client.calendar.events = {
     list: function (params) {
       var timeMin = params.timeMin,
-        timeMax = params.timeMax,
-        promise = new Promise(function(resolve, reject) {
+        timeMax = params.timeMax;
+
+      return {
+        then: function (onFulfilled, onRejected) {
           var data = [
             {
               "description": "Gen. Johnson </br>Col. Smith </br>Mr. John Adams </br>Mrs. Susan Johnson",
@@ -99,10 +103,11 @@
             }
           };
 
-          resolve(resp);
-        });
-
-      return promise;
+          if (onFulfilled) {
+            onFulfilled(resp);
+          }
+        }
+      };
     }
   };
 

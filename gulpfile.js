@@ -129,7 +129,7 @@
   // e2e testing
   gulp.task("html:e2e", factory.htmlE2E({
     files: ["./src/settings.html", "./src/widget.html"],
-    e2eClient: "../test/e2e/calendar-api-mock.js",
+    e2eClient: "../test/calendar-api-mock.js",
     e2eMockData: "../test/mock-data.js"
   }));
 
@@ -168,24 +168,29 @@
       "src/config/test.js",
       "src/settings/settings-app.js",
       "src/settings/**/*.js",
-      "test/unit/**/*spec.js"]
+      "test/unit/settings/**/*spec.js"]
     }
   ));
 
   gulp.task("test:unit:widget", factory.testUnitAngular({
     testFiles: [
       "src/components/jquery/dist/jquery.js",
+      "test/mock-data.js",
+      "src/components/auto-scroll/jquery.auto-scroll.js",
+      "src/components/moment/moment.js",
+      "src/components/underscore/underscore.js",
       "node_modules/widget-tester/mocks/gadget-mocks.js",
       "src/config/test.js",
       "src/components/widget-common/dist/common.js",
-      "src/widget/main.js",
-      "src/widget/provider.js",
       "src/widget/calendar.js",
+      "src/widget/main.js",
       "src/widget/day.js",
       "src/widget/event.js",
-      "test/unit/widget/**/*spec.js"]
-    }
-  ));
+      "src/widget/provider.js",
+      "test/calendar-api-mock.js",
+      "test/unit/widget/**/*spec.js"
+    ]
+  }));
 
   gulp.task("test:unit", function(cb) {
     runSequence("test:unit:settings", "test:unit:widget", cb);

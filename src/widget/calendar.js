@@ -81,7 +81,9 @@ RiseVision.Calendar = (function (gadgets) {
       dayFragment.appendChild(fragment.cloneNode(true));
     }
 
-    daysNode.appendChild(dayFragment);
+    if (daysNode) {
+      daysNode.appendChild(dayFragment);
+    }
 
     // Add events for each day.
     for (i = 0, length = calendarDays.length; i < length; i++) {
@@ -98,11 +100,13 @@ RiseVision.Calendar = (function (gadgets) {
     }, delay);
 
     if (isLoading) {
-      $container.autoScroll(params.scroll)
-        .on("done", function() {
-          refresh();
-          done();
-        });
+      if ($container) {
+        $container.autoScroll(params.scroll)
+          .on("done", function() {
+            refresh();
+            done();
+          });
+      }
 
       isLoading = false;
       ready();
@@ -172,8 +176,10 @@ RiseVision.Calendar = (function (gadgets) {
         daysNode = document.getElementById("days");
 
         // Add the HTML to the fragment.
-        while (daysNode.firstChild) {
-          fragment.appendChild(daysNode.firstChild);
+        if (daysNode) {
+          while (daysNode.firstChild) {
+            fragment.appendChild(daysNode.firstChild);
+          }
         }
 
         $container.height(prefs.getInt("rsH"));
