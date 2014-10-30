@@ -12,17 +12,17 @@ casper.test.begin("Google Calendar Widget - e2e Testing", function (test) {
     }
   );
 
-  //casper.waitFor(
-    //function check() {
-      //return this.evaluate(function() {
-        // TODO: Why doesn't this work?
-        //return document.querySelectorAll("li.day").length > 1;
-      //});
-    //},
-    //function then() {
-      //test.assertSelectorHasText(".date", "Today");
-    //}
-  //);
+  casper.waitFor(
+    function check() {
+      return this.evaluate(function() {
+        //TODO: Why doesn't this work?
+        return document.getElementById("days").childNodes.length > 0;
+      });
+    },
+    function then() {
+      test.assertSelectorHasText(".date", "Today");
+    }
+  );
 
   casper.run(function() {
     test.done();
