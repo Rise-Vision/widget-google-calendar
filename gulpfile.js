@@ -146,8 +146,7 @@
   gulp.task("e2e:server-close", factory.testServerClose());
 
   gulp.task("test:e2e", function(cb) {
-    runSequence(["html:e2e", "e2e:server"], "test:e2e:widget", "e2e:server-close", cb);
-    //runSequence(["html:e2e", "e2e:server"], "test:e2e:settings", "test:e2e:widget", "e2e:server-close", cb);
+    runSequence(["html:e2e", "e2e:server"], "test:e2e:settings", "test:e2e:widget", "e2e:server-close", cb);
   });
 
   // Unit testing
