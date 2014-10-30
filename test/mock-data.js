@@ -14,7 +14,7 @@
         "speed": "medium",
         "pause": 5
       },
-      "dateRange": "day",
+      "dateRange": "week",
       "dateFont": {
         "font": {
           "family": "Verdana"
