@@ -18,6 +18,10 @@ At this time Chrome is the only browser that this project and Rise Vision suppor
 ## Development
 
 ### Local Development Environment Setup and Installation
+
+Before running the commands below, ensure you have installed Node and NPM
+Install package available at: http://nodejs.org/
+
 The Widget can be installed by executing the following commands:
 ```
 git clone https://github.com/Rise-Vision/widget-google-calendar.git
