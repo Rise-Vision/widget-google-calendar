@@ -21,152 +21,190 @@
 
 </head>
 <body ng-app="risevision.widget.googleCalendar.settings" ng-controller="settingsController">
-  <div class="widget">
-    <div class="overlay"></div>
-    <div class="settings">
-      <div class="settings-center">
-        <div class="wrapper container modal-content" ng-controller="calendarSettingsController" ng-cloak>
-          <div class="modal-header">
-            <h2 id="settings-title"> {{"settings" | translate }}
-              <button id="settings-close" type="button" class="close" ng-click="closeSettings()">
-                <span>&times;</span>
-                <span class="sr-only">Close</span>
-              </button>
-            </h2>
-            <div class="sticky-wrapper">
-              <widget-button-toolbar
+<div class="widget">
+  <div class="overlay"></div>
+  <div class="settings">
+    <div class="settings-center">
+      <div class="wrapper container modal-content" ng-controller="calendarSettingsController" ng-cloak>
+        <div class="modal-header">
+          <h2 id="settings-title"> {{"settings" | translate }}
+            <button id="settings-close" type="button" class="close" ng-click="closeSettings()">
+              <span>&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+          </h2>
+          <div class="sticky-wrapper">
+            <widget-button-toolbar
                 save="saveSettings()" cancel="closeSettings()" disable-save="settingsForm.$invalid"
                 help="http://help.risevision.com/help#/user/content/calendar-widget"
                 contribute="https://github.com/Rise-Vision/widget-google-calendar"></widget-button-toolbar>
-            </div>
           </div>
-          <form role="form" name="settingsForm">
-            <div ng-class="{'form-group':true, 'has-error':settingsForm.calendar.$invalid}">
-              <label>{{ "calendar.label" | translate }}</label>
-              <input name="calendar" type="text" ng-model="settings.additionalParams.calendar" required class="form-control">
-              <p class="text-danger" ng-show="settingsForm.calendar.$error.required">
-                {{"calendar.error.required" | translate}}
-              </p>
+        </div>
+        <form role="form" name="settingsForm">
+          <div ng-class="{'form-group':true, 'has-error':settingsForm.calendar.$invalid}">
+            <label>{{ "calendar.label" | translate }}</label>
+            <input name="calendar" type="text" ng-model="settings.additionalParams.calendar" required class="form-control">
+            <p class="text-danger" ng-show="settingsForm.calendar.$error.required">
+              {{"calendar.error.required" | translate}}
+            </p>
+          </div>
+          <scroll-setting scroll="settings.additionalParams.scroll"></scroll-setting>
+          <div class="section">
+            <h5>{{"date.heading" | translate}}</h5>
+            <div class="form-group">
+              <label for="dateRange">{{ "date.range.label" | translate }}</label>
+              <div class="row">
+                <div class="col-xs-6 col-md-3">
+                  <select id="dateRange" name="dateRange" ng-model="settings.additionalParams.dateRange" class="form-control">
+                    <option value="day">{{"date.range.day" | translate}}</option>
+                    <option value="week">{{"date.range.week" | translate}}</option>
+                    <option value="8days">{{"date.range.8days" | translate}}</option>
+                    <option value="9days">{{"date.range.9days" | translate}}</option>
+                    <option value="10days">{{"date.range.10days" | translate}}</option>
+                    <option value="11days">{{"date.range.11days" | translate}}</option>
+                    <option value="12days">{{"date.range.12days" | translate}}</option>
+                    <option value="13days">{{"date.range.13days" | translate}}</option>
+                    <option value="14days">{{"date.range.14days" | translate}}</option>
+                    <option value="15days">{{"date.range.15days" | translate}}</option>
+                    <option value="month">{{"date.range.month" | translate}}</option>
+                    <option value="6months">{{"date.range.6months" | translate}}</option>
+                    <option value="12months">{{"date.range.12months" | translate}}</option>
+                  </select>
+                </div>
+              </div>
             </div>
-            <scroll-setting scroll="settings.additionalParams.scroll"></scroll-setting>
-            <div class="section">
-              <h5>{{"date.heading" | translate}}</h5>
-              <div class="form-group">
-                <label for="dateRange">{{ "date.range.label" | translate }}</label>
-                <div class="row">
-                  <div class="col-xs-6 col-md-3">
-                    <select id="dateRange" name="dateRange" ng-model="settings.additionalParams.dateRange" class="form-control">
-                      <option value="day">{{"date.range.day" | translate}}</option>
-                      <option value="week">{{"date.range.week" | translate}}</option>
-                      <option value="month">{{"date.range.month" | translate}}</option>
-                      <option value="6months">{{"date.range.6months" | translate}}</option>
-                      <option value="12months">{{"date.range.12months" | translate}}</option>
-                    </select>
-                  </div>
+            <div class="form-group">
+              <label for="concealPastEvents">{{ "concealPastEvents.label" | translate }}</label>
+              <div class="row">
+                <div class="col-xs-6 col-md-3">
+                  <select id="concealPastEvents" name="concealPastEvents" ng-model="settings.additionalParams.concealPastEvents" class="form-control">
+                    <option value="never">{{"concealPastEvents.never" | translate}}</option>
+                    <option value="always">{{"concealPastEvents.always" | translate}}</option>
+                  </select>
                 </div>
               </div>
-              <div class="form-group" ng-show="showDateFormat">
-                <label for="dateFormat">{{"date.format.label" | translate}}</label>
-                <div class="row">
-                  <div class="col-xs-6 col-md-3">
-                    <select id="dateFormat" name="dateFormat" ng-model="settings.additionalParams.dateFormat" class="form-control">
-                      <option value="D/M/YYYY">{{currentDate | date: "dd'/'MM'/'yyyy"}}</option>
-                      <option value="M/D/YYYY">{{currentDate | date: "MM'/'dd'/'yyyy"}}</option>
-                      <option value="YYYY/M/D">{{currentDate | date: "yyyy'/'MM'/'dd"}}</option>
-                      <option value="MMMM D, YYYY">{{currentDate | date: "MMMM dd',' yyyy"}}</option>
-                      <option value="D-MMM-YYYY">{{currentDate | date:"dd'-'MMM'-'yyyy"}}</option>
-                    </select>
-                  </div>
+            </div>
+            <div class="form-group" ng-show="showDateFormat">
+              <label for="dateFormat">{{"date.format.label" | translate}}</label>
+              <div class="row">
+                <div class="col-xs-6 col-md-3">
+                  <select id="dateFormat" name="dateFormat" ng-model="settings.additionalParams.dateFormat" class="form-control">
+                    <option value="D/M/YYYY">{{currentDate | date: "dd'/'MM'/'yyyy"}}</option>
+                    <option value="M/D/YYYY">{{currentDate | date: "MM'/'dd'/'yyyy"}}</option>
+                    <option value="YYYY/M/D">{{currentDate | date: "yyyy'/'MM'/'dd"}}</option>
+                    <option value="MMMM D, YYYY">{{currentDate | date: "MMMM dd',' yyyy"}}</option>
+                    <option value="dddd, MMMM D">{{currentDate | date:"EEEE',' MMMM d"}}</option>
+                    <option value="dddd, MMMM D, YYYY">{{currentDate | date:"EEEE',' MMMM d',' yyyy"}}</option>
+                    <option value="D-MMM-YYYY">{{currentDate | date:"dd'-'MMM'-'yyyy"}}</option>
+                    <option value="ddd, MMM D">{{currentDate | date:"EEE',' MMM d"}}</option>
+                    <option value="ddd, D-MMM-YYYY">{{currentDate | date:"EEE',' dd'-'MMM'-'yyyy"}}</option>
+                  </select>
                 </div>
               </div>
+            </div>
+            <div class="form-group">
               <label>{{"date.font.label" | translate}}</label>
               <font-setting font-data="settings.additionalParams.dateFont" hide-alignment="true"
                             preview-text="{{'date.font.text' | translate}}">
               </font-setting>
             </div>
-            <div class="section">
-              <h5>{{"time.heading" | translate}}</h5>
-              <div class="form-group">
-                <label for="timeFormat">{{"time.format.label" | translate}}</label>
-                <div class="row">
-                  <div class="col-xs-6 col-md-3">
-                    <select id="timeFormat" name="timeFormat" ng-model="settings.additionalParams.timeFormat" class="form-control">
-                      <option value="12hour">{{"time.format.12hour" | translate}}</option>
-                      <option value="24hour">{{"time.format.24hour" | translate}}</option>
-                    </select>
-                  </div>
+          </div>
+          <div class="section">
+            <h5>{{"time.heading" | translate}}</h5>
+            <div class="form-group">
+              <label for="timeFormat">{{"time.format.label" | translate}}</label>
+              <div class="row">
+                <div class="col-xs-6 col-md-3">
+                  <select id="timeFormat" name="timeFormat" ng-model="settings.additionalParams.timeFormat" class="form-control">
+                    <option value="12hour">{{"time.format.12hour" | translate}}</option>
+                    <option value="24hour">{{"time.format.24hour" | translate}}</option>
+                  </select>
                 </div>
               </div>
-              <div class="form-group">
-                <label>{{"time.font.label" | translate}}</label>
-                <font-setting font-data="settings.additionalParams.timeFont" hide-alignment="true"
-                              preview-text="{{'time.font.text' | translate}}">
-                </font-setting>
+            </div>
+            <div class="form-group">
+              <label for="concealEndTime">{{ "concealEndTime.label" | translate }}</label>
+              <div class="row">
+                <div class="col-xs-6 col-md-3">
+                  <select id="concealEndTime" name="concealEndTime" ng-model="settings.additionalParams.concealEndTime" class="form-control">
+                    <option value="never">{{"concealEndTime.never" | translate}}</option>
+                    <option value="always">{{"concealEndTime.always" | translate}}</option>
+                    <option value="hour">{{"concealEndTime.hour" | translate}}</option>
+                    <option value="hourorless">{{"concealEndTime.hourorless" | translate}}</option>
+                  </select>
+                </div>
               </div>
             </div>
-            <div class="section">
-              <div class="form-group">
-                <label>{{"title-font.label" | translate}}</label>
-                <font-setting font-data="settings.additionalParams.titleFont" hide-alignment="true"
-                              preview-text="{{'title-font.text' | translate}}">
-                </font-setting>
-              </div>
-              <div class="form-group">
-                <label>{{"location-font.label" | translate}}</label>
-                <font-setting font-data="settings.additionalParams.locationFont" hide-alignment="true"
-                              preview-text="{{'location-font.text' | translate}}">
-                </font-setting>
-              </div>
-              <div class="form-group">
-                <label>{{"description-font.label" | translate}}</label>
-                <font-setting font-data="settings.additionalParams.descriptionFont" hide-alignment="true"
-                              preview-text="{{'description-font.text' | translate}}">
-                </font-setting>
-              </div>
+            <div class="form-group">
+              <label>{{"time.font.label" | translate}}</label>
+              <font-setting font-data="settings.additionalParams.timeFont" hide-alignment="true"
+                            preview-text="{{'time.font.text' | translate}}">
+              </font-setting>
             </div>
-          </form>
-        </div>
+          </div>
+          <div class="section">
+            <div class="form-group">
+              <label>{{"title-font.label" | translate}}</label>
+              <font-setting font-data="settings.additionalParams.titleFont" hide-alignment="true"
+                            preview-text="{{'title-font.text' | translate}}">
+              </font-setting>
+            </div>
+            <div class="form-group">
+              <label>{{"location-font.label" | translate}}</label>
+              <font-setting font-data="settings.additionalParams.locationFont" hide-alignment="true"
+                            preview-text="{{'location-font.text' | translate}}">
+              </font-setting>
+            </div>
+            <div class="form-group">
+              <label>{{"description-font.label" | translate}}</label>
+              <font-setting font-data="settings.additionalParams.descriptionFont" hide-alignment="true"
+                            preview-text="{{'description-font.text' | translate}}">
+              </font-setting>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>
+</div>
 
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
-  <!-- build:js js/settings.min.js -->
-  <script src="components/angular-translate/angular-translate.js"></script>
-  <script src="components/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
-  <script src="components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
-  <script src="components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-  <script src="components/bootstrap-select/bootstrap-select.js"></script>
-  <script src="components/spectrum/spectrum.js"></script>
-  <script src="components/rv-bootstrap-formhelpers/dist/js/rv-bootstrap-formhelpers.js"></script>
-  <script src="components/bootstrap-form-components/dist/js/bootstrap-font-picker.js"></script>
-  <script src="components/bootstrap-form-components/dist/js/angular/bootstrap-font-picker.js"></script>
-  <script src="components/bootstrap-form-components/dist/js/bootstrap-font-size-picker.js"></script>
-  <script src="components/bootstrap-form-components/dist/js/angular/bootstrap-font-size-picker.js"></script>
-  <script src="components/widget-settings-ui-components/dist/js/alignment.js"></script>
-  <script src="components/widget-settings-ui-components/dist/js/angular/alignment.js"></script>
-  <script src="components/widget-settings-ui-components/dist/js/url-field.js"></script>
-  <script src="components/widget-settings-ui-components/dist/js/angular/color-picker.js"></script>
-  <script src="components/widget-settings-ui-components/dist/js/font-style.js"></script>
-  <script src="components/widget-settings-ui-components/dist/js/angular/font-style.js"></script>
+<!-- build:js js/settings.min.js -->
+<script src="components/angular-translate/angular-translate.js"></script>
+<script src="components/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
+<script src="components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
+<script src="components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="components/bootstrap-select/bootstrap-select.js"></script>
+<script src="components/spectrum/spectrum.js"></script>
+<script src="components/rv-bootstrap-formhelpers/dist/js/rv-bootstrap-formhelpers.js"></script>
+<script src="components/bootstrap-form-components/dist/js/bootstrap-font-picker.js"></script>
+<script src="components/bootstrap-form-components/dist/js/angular/bootstrap-font-picker.js"></script>
+<script src="components/bootstrap-form-components/dist/js/bootstrap-font-size-picker.js"></script>
+<script src="components/bootstrap-form-components/dist/js/angular/bootstrap-font-size-picker.js"></script>
+<script src="components/widget-settings-ui-components/dist/js/alignment.js"></script>
+<script src="components/widget-settings-ui-components/dist/js/angular/alignment.js"></script>
+<script src="components/widget-settings-ui-components/dist/js/url-field.js"></script>
+<script src="components/widget-settings-ui-components/dist/js/angular/color-picker.js"></script>
+<script src="components/widget-settings-ui-components/dist/js/font-style.js"></script>
+<script src="components/widget-settings-ui-components/dist/js/angular/font-style.js"></script>
 
-  <script src="config/config.js"></script>
-  <script src="settings/settings-app.js"></script>
-  <script src="components/widget-settings-ui-core/dist/widget-settings-ui-core.js"></script>
-  <script src="settings/ctr-google-calendar-settings.js"></script>
+<script src="config/config.js"></script>
+<script src="settings/settings-app.js"></script>
+<script src="components/widget-settings-ui-core/dist/widget-settings-ui-core.js"></script>
+<script src="settings/ctr-google-calendar-settings.js"></script>
 
-  <script src="components/widget-settings-ui-components/dist/js/angular/widget-button-toolbar.js"></script>
-  <script src="components/widget-settings-ui-components/dist/js/angular/tooltip.js"></script>
-  <script src="components/widget-settings-ui-components/dist/js/angular/scroll-setting.js"></script>
-  <script src="components/widget-settings-ui-components/dist/js/angular/font-setting.js"></script>
-  <!-- endbuild -->
+<script src="components/widget-settings-ui-components/dist/js/angular/widget-button-toolbar.js"></script>
+<script src="components/widget-settings-ui-components/dist/js/angular/tooltip.js"></script>
+<script src="components/widget-settings-ui-components/dist/js/angular/scroll-setting.js"></script>
+<script src="components/widget-settings-ui-components/dist/js/angular/font-setting.js"></script>
+<!-- endbuild -->
 
-  <!-- build:e2egadgets -->
-  <script src="//rvashow2.appspot.com/gadgets/gadgets.min.js"></script>
-  <!-- endbuild -->
+<!-- build:e2egadgets -->
+<script src="//rvashow2.appspot.com/gadgets/gadgets.min.js"></script>
+<!-- endbuild -->
 
-  <script src="//s3.amazonaws.com/rise-common/scripts/i18next/i18next.min.js"></script>
+<script src="//s3.amazonaws.com/rise-common/scripts/i18next/i18next.min.js"></script>
 
 
 </body>

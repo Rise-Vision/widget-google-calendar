@@ -6,12 +6,32 @@
       "required": "Please enter a Calendar ID"
     }
   },
+  "concealEndTime" : {
+    "label": "Show event ending times",
+    "never": "Always",
+    "always": "Never",
+    "hour" : "Unless the event is one hour long",
+    "hourorless" : "For events longer than one hour"
+  },
+  "concealPastEvents" : {
+    "label": "Show today's completed events",
+    "never": "Yes",
+    "always": "No"
+  },
   "date": {
     "heading": "Date",
     "range": {
       "label": "Range",
       "day": "Day",
       "week": "Week",
+      "8days": "8 Days",
+      "9days": "9 Days",
+      "10days": "10 Days",
+      "11days": "11 Days",
+      "12days": "12 Days",
+      "13days": "13 Days",
+      "14days": "14 Days",
+      "15days": "15 Days",
       "month": "Month",
       "6months": "6 Months",
       "12months": "12 Months"

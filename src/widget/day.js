@@ -47,7 +47,7 @@ RiseVision.Calendar.Day = function(params) {
 
     // Add all of the events for the current day.
     $.each(events, function(index, value) {
-      RiseVision.Calendar.Event.addEvent($day, index, value, params.timeFormat);
+      RiseVision.Calendar.Event.addEvent($day, index, value, params.timeFormat, params.concealEndTime);
     });
   }
 

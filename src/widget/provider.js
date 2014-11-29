@@ -24,6 +24,30 @@ RiseVision.Calendar.Provider = (function () {
       case "week":
         timeMax = timeMax.add(6, "days").format();
         break;
+      case "8days":
+          timeMax = timeMax.add(7, "days").format();
+          break;
+      case "9days":
+          timeMax = timeMax.add(8, "days").format();
+          break;
+      case "10days":
+          timeMax = timeMax.add(9, "days").format();
+          break;
+      case "11days":
+          timeMax = timeMax.add(10, "days").format();
+          break;
+      case "12days":
+          timeMax = timeMax.add(11, "days").format();
+          break;
+      case "13days":
+          timeMax = timeMax.add(12, "days").format();
+          break;
+      case "14days":
+          timeMax = timeMax.add(13, "days").format();
+          break;
+      case "15days":
+          timeMax = timeMax.add(14, "days").format();
+          break;
       case "month":
         timeMax = timeMax.add(1, "months").format();
         break;

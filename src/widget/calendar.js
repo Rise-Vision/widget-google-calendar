@@ -138,19 +138,20 @@ RiseVision.Calendar = (function (gadgets) {
         // Get all events for the current day.
         currentEvents = _.filter(events, getCurrentEvents);
 
+        /* conditionally eliminate events for which end dates are in the past */
+        if (params.concealPastEvents === "always") {
+          currentEvents = _.filter(currentEvents, removeTodaysCompletedEvents);
+        }
+
         if (currentEvents.length > 0) {
           // Create RiseVision.Calendar.Day object and set events for it.
           calendarDay = new RiseVision.Calendar.Day(params);
           calendarDay.setEvents(currentEvents);
           calendarDays.push(calendarDay);
+        }
 
-          // Remove all events for the current day from the remaining events.
-          events = _.filter(events, removeCurrentEvents);
-        }
-        else {
-          // This should never happen, but exit loop just in case.
-          break;
-        }
+        // Remove all events for the current day from the remaining events.
+        events = _.filter(events, removeCurrentEvents);
       }
     }
 
@@ -186,6 +187,17 @@ RiseVision.Calendar = (function (gadgets) {
     }
   }
 
+
+  function removeTodaysCompletedEvents (event) {
+    var now = moment();
+    if (event.start && event.end && event.start.dateTime && event.end.dateTime) {
+      if (now.isAfter(moment(event.end.dateTime))) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
   function getCurrentEvents(event) {
     if (event.start.dateTime) {
       return moment(event.start.dateTime).isSame(currentDay, "day");
