@@ -131,6 +131,7 @@
             "highlightColor":"transparent"
           },
           "timeFormat": "12hour",
+          //"concealEndTime": "never",
           "titleFont": {
             "bold":true,
             "font": {
