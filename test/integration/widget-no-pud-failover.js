@@ -11,7 +11,7 @@ casper.test.begin("Integration Testing - PUD Failover", {
     casper.options.clientScripts = [
       "test/data/pud-failover.js",
       "test/calendar-api-mock.js",
-      "node_modules/widget-tester/node_modules/sinon/pkg/sinon.js"
+      "node_modules/sinon/pkg/sinon.js"
     ];
   },
   test: function(test) {
@@ -40,7 +40,7 @@ casper.test.begin("Integration Testing - PUD Failover", {
 
         // PUD timer should not fire, thereby not triggering the "done" event and telling the
         // Widget to play.
-        return playSpy.calledOnce;
+        return playSpy.called;
       });
 
       test.assert(spyCalledOnce, "PUD timer not fired");

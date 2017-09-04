@@ -163,7 +163,7 @@
     testFiles: [
       "src/components/jquery/dist/jquery.js",
       "test/data/main.js",
-      "src/components/auto-scroll/jquery.auto-scroll.js",
+      "src/components/auto-scroll/dist/jquery.auto-scroll.js",
       "src/components/moment/moment.js",
       "src/components/moment-range/lib/moment-range.js",
       "src/components/underscore/underscore.js",

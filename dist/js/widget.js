@@ -140,9 +140,11 @@ RiseVision.Common.Utilities = (function() {
 /*
  *  Project: Auto-Scroll
  *  Description: Auto-scroll plugin for use with Rise Vision Widgets
- *  Author: @donnapep
+ *  Author: @Rise-Vision
  *  License: MIT
  */
+
+/* global TweenLite, Linear, Draggable */
 
 ;(function ($, window, document, undefined) {
 	"use strict";
@@ -333,7 +335,7 @@ RiseVision.Common.Utilities = (function() {
 			return this.options && (this.page.height() > $(this.element).height());
 		},
 		destroy: function() {
-			$(this.element).removeData();
+			$.data(this.element, "plugin_" + pluginName, null);
 			if (this.tween) {
 				this.tween.kill();
 			}
@@ -373,16 +375,6 @@ RiseVision.Common.Utilities = (function() {
 			TweenLite.killDelayedCallsTo(this.calculateProgress);
 			this.tween.pause();
 		}
-	};
-
-	Plugin.prototype.stop = function() {
-		if (this.tween) {
-			TweenLite.killDelayedCallsTo(this.calculateProgress);
-			this.tween.kill();
-		}
-
-		this.element = null;
-		this.page = null;
 	};
 
 	// A lightweight plugin wrapper around the constructor that prevents
