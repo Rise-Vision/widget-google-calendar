@@ -50,7 +50,6 @@ RiseVision.Calendar = (function (gadgets) {
 
   function applyAutoScroll() {
     if ( !getScrollEl() ) {
-      console.log($container.autoScroll);
       $container.autoScroll( params.scroll ).on( "done", onScrollDone );
     }
   }
