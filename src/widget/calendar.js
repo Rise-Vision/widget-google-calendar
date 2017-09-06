@@ -16,14 +16,15 @@ RiseVision.Calendar = (function (gadgets) {
     prefs = new gadgets.Prefs(),
     utils = RiseVision.Common.Utilities,
     $container = $("#container"),
+    $scrollContainer = $("#scrollContainer"),
     viewerPaused = true;
 
   /*
    *  Private Methods
    */
   function getScrollEl() {
-    if ( typeof $container.data( "plugin_autoScroll" ) !== "undefined" ) {
-      return $container.data( "plugin_autoScroll" );
+    if ( typeof $scrollContainer.data( "plugin_autoScroll" ) !== "undefined" ) {
+      return $scrollContainer.data( "plugin_autoScroll" );
     }
 
     return null;
@@ -44,13 +45,22 @@ RiseVision.Calendar = (function (gadgets) {
       // destroy the auto scroll instance
       $scroll.destroy();
       // remove the applied visibility and opacity styling applied by auto-scroll plugin
-      $container.find(".page").removeAttr("style");
+      $scrollContainer.find(".page").removeAttr("style");
     }
+
+    $(".error, .page").unwrap();
   }
 
   function applyAutoScroll() {
+    if (!jQuery.contains(document, $scrollContainer[0])) {
+      $(".error, .page").wrapAll("<div id=\"scrollContainer\">");
+      $scrollContainer = $("#scrollContainer");
+      $scrollContainer.width(prefs.getInt("rsW"));
+      $scrollContainer.height(prefs.getInt("rsH"));
+    }
+
     if ( !getScrollEl() ) {
-      $container.autoScroll( params.scroll ).on( "done", onScrollDone );
+      $scrollContainer.autoScroll( params.scroll ).on( "done", onScrollDone );
     }
   }
 
@@ -355,6 +365,9 @@ RiseVision.Calendar = (function (gadgets) {
 
         $container.width(prefs.getInt("rsW"));
         $container.height(prefs.getInt("rsH"));
+
+        $scrollContainer.width(prefs.getInt("rsW"));
+        $scrollContainer.height(prefs.getInt("rsH"));
 
         getEventsList();
       }
