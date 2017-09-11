@@ -140,9 +140,11 @@ RiseVision.Common.Utilities = (function() {
 /*
  *  Project: Auto-Scroll
  *  Description: Auto-scroll plugin for use with Rise Vision Widgets
- *  Author: @donnapep
+ *  Author: @Rise-Vision
  *  License: MIT
  */
+
+/* global TweenLite, Linear, Draggable */
 
 ;(function ($, window, document, undefined) {
 	"use strict";
@@ -333,7 +335,7 @@ RiseVision.Common.Utilities = (function() {
 			return this.options && (this.page.height() > $(this.element).height());
 		},
 		destroy: function() {
-			$(this.element).removeData();
+			$.data(this.element, "plugin_" + pluginName, null);
 			if (this.tween) {
 				this.tween.kill();
 			}
@@ -373,16 +375,6 @@ RiseVision.Common.Utilities = (function() {
 			TweenLite.killDelayedCallsTo(this.calculateProgress);
 			this.tween.pause();
 		}
-	};
-
-	Plugin.prototype.stop = function() {
-		if (this.tween) {
-			TweenLite.killDelayedCallsTo(this.calculateProgress);
-			this.tween.kill();
-		}
-
-		this.element = null;
-		this.page = null;
 	};
 
 	// A lightweight plugin wrapper around the constructor that prevents
@@ -5279,14 +5271,15 @@ RiseVision.Calendar = (function (gadgets) {
     prefs = new gadgets.Prefs(),
     utils = RiseVision.Common.Utilities,
     $container = $("#container"),
+    $scrollContainer = $("#scrollContainer"),
     viewerPaused = true;
 
   /*
    *  Private Methods
    */
   function getScrollEl() {
-    if ( typeof $container.data( "plugin_autoScroll" ) !== "undefined" ) {
-      return $container.data( "plugin_autoScroll" );
+    if ( typeof $scrollContainer.data( "plugin_autoScroll" ) !== "undefined" ) {
+      return $scrollContainer.data( "plugin_autoScroll" );
     }
 
     return null;
@@ -5307,13 +5300,22 @@ RiseVision.Calendar = (function (gadgets) {
       // destroy the auto scroll instance
       $scroll.destroy();
       // remove the applied visibility and opacity styling applied by auto-scroll plugin
-      $container.find(".page").removeAttr("style");
+      $scrollContainer.find(".page").removeAttr("style");
     }
+
+    $(".error, .page").unwrap();
   }
 
   function applyAutoScroll() {
+    if (!jQuery.contains(document, $scrollContainer[0])) {
+      $(".error, .page").wrapAll("<div id=\"scrollContainer\">");
+      $scrollContainer = $("#scrollContainer");
+      $scrollContainer.width(prefs.getInt("rsW"));
+      $scrollContainer.height(prefs.getInt("rsH"));
+    }
+
     if ( !getScrollEl() ) {
-      $container.autoScroll( params.scroll ).on( "done", onScrollDone );
+      $scrollContainer.autoScroll( params.scroll ).on( "done", onScrollDone );
     }
   }
 
@@ -5618,6 +5620,9 @@ RiseVision.Calendar = (function (gadgets) {
 
         $container.width(prefs.getInt("rsW"));
         $container.height(prefs.getInt("rsH"));
+
+        $scrollContainer.width(prefs.getInt("rsW"));
+        $scrollContainer.height(prefs.getInt("rsH"));
 
         getEventsList();
       }
