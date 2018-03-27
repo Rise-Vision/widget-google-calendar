@@ -13,6 +13,7 @@ RiseVision.Calendar = (function (gadgets) {
     isLoading = true,
     isExpired = false,
     currentDay,
+    _errorLog = null,
     prefs = new gadgets.Prefs(),
     utils = RiseVision.Common.Utilities,
     $container = $("#container"),
@@ -69,7 +70,9 @@ RiseVision.Calendar = (function (gadgets) {
       "success": addEvents,
       "error": function(reason) {
         if (reason && reason.result && reason.result.error) {
-          console.log("Error retrieving calendar data: " + JSON.stringify(reason.result.error));
+          var errorMessage = JSON.stringify(reason.result);
+          logEvent( { "event": "error", "event_details": errorMessage }, true );
+          console.log("Error retrieving calendar data: " + errorMessage);
 
           // Network error. Retry later.
           if (reason.result.error.code && reason.result.error.code === -1) {
@@ -304,6 +307,7 @@ RiseVision.Calendar = (function (gadgets) {
   function refresh() {
     if (isExpired) {
       isExpired = false;
+      _errorLog = null;
       stopPUDTimer();
       getEventsList();
     }
@@ -316,15 +320,50 @@ RiseVision.Calendar = (function (gadgets) {
 
   function done() {
     gadgets.rpc.call("", "rsevent_done", null, prefs.getString("id"));
+
+    // Any errors need to be logged before the done event.
+    if ( _errorLog !== null ) {
+      logEvent( _errorLog, true );
+    }
+  }
+
+  function logEvent( params, isError ) {
+    if ( isError ) {
+      _errorLog = params;
+    }
+
+    RiseVision.Common.LoggerUtils.logEvent( "calendar_events", params );
   }
 
   /*
    *  Public Methods
    */
   function getAdditionalParams(names, values) {
+    var companyId = "", displayId = "";
+
     if (Array.isArray(names) && names.length > 0 && names[0] === "additionalParams") {
       if (Array.isArray(values) && values.length > 0) {
+        // company id
+        if ( names[ 0 ] === "companyId" ) {
+          companyId = values[ 0 ];
+        }
+
+        // display id
+        if ( names[ 1 ] === "displayId" ) {
+          if ( values[ 1 ] ) {
+            displayId = values[ 1 ];
+          } else {
+            displayId = "preview";
+          }
+        }
+
         params = JSON.parse(values[0]);
+
+        // provide LoggerUtils the ids to use
+        console.log(companyId, displayId);
+        RiseVision.Common.LoggerUtils.setIds( companyId, displayId );
+
+        logEvent( { "event": "Configuration", "calendar_id": params.calendar || "no calendar id" }, true );
 
         // Load fonts.
         var fontSettings = [
@@ -408,6 +447,7 @@ RiseVision.Calendar = (function (gadgets) {
   }
 
   return {
+    logEvent           : logEvent,
     getAdditionalParams: getAdditionalParams,
     play               : play,
     pause              : pause,
