@@ -69,9 +69,7 @@ RiseVision.Calendar = (function (gadgets) {
       "success": addEvents,
       "error": function(reason) {
         if (reason && reason.result && reason.result.error) {
-          if (reason.result.error.message) {
-            console.log("Error retrieving calendar data: " + reason.result.error.message);
-          }
+          console.log("Error retrieving calendar data: " + JSON.stringify(reason.result.error));
 
           // Network error. Retry later.
           if (reason.result.error.code && reason.result.error.code === -1) {
@@ -218,6 +216,8 @@ RiseVision.Calendar = (function (gadgets) {
     startRefreshTimer();
     removeAutoscroll();
     applyAutoScroll();
+
+    $(".error").hide();
 
     if ( isLoading ) {
       isLoading = false;
