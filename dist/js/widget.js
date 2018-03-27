@@ -1,3 +1,263 @@
+/* exported WIDGET_COMMON_CONFIG */
+var WIDGET_COMMON_CONFIG = {
+  AUTH_PATH_URL: "v1/widget/auth",
+  LOGGER_CLIENT_ID: "1088527147109-6q1o2vtihn34292pjt4ckhmhck0rk0o7.apps.googleusercontent.com",
+  LOGGER_CLIENT_SECRET: "nlZyrcPLg6oEwO9f9Wfn29Wh",
+  LOGGER_REFRESH_TOKEN: "1/xzt4kwzE1H7W9VnKB8cAaCx6zb4Es4nKEoqaYHdTD15IgOrJDtdun6zK6XiATCKT",
+  STORE_URL: "https://store-dot-rvaserver2.appspot.com/"
+};
+/* global WIDGET_COMMON_CONFIG */
+
+var RiseVision = RiseVision || {};
+RiseVision.Common = RiseVision.Common || {};
+
+RiseVision.Common.LoggerUtils = (function() {
+  "use strict";
+
+   var displayId = "",
+     companyId = "",
+     version = null;
+
+  /*
+   *  Private Methods
+   */
+
+  /* Retrieve parameters to pass to the event logger. */
+  function getEventParams(params, cb) {
+    var json = null;
+
+    // event is required.
+    if (params.event) {
+      json = params;
+
+      if (json.file_url) {
+        json.file_format = getFileFormat(json.file_url);
+      }
+
+      json.company_id = companyId;
+      json.display_id = displayId;
+
+      if (version) {
+        json.version = version;
+      }
+
+      cb(json);
+    }
+    else {
+      cb(json);
+    }
+  }
+
+  // Get suffix for BQ table name.
+  function getSuffix() {
+    var date = new Date(),
+      year = date.getUTCFullYear(),
+      month = date.getUTCMonth() + 1,
+      day = date.getUTCDate();
+
+    if (month < 10) {
+      month = "0" + month;
+    }
+
+    if (day < 10) {
+      day = "0" + day;
+    }
+
+    return "" + year + month + day;
+  }
+
+  /*
+   *  Public Methods
+   */
+  function getFileFormat(url) {
+    var hasParams = /[?#&]/,
+      str;
+
+    if (!url || typeof url !== "string") {
+      return null;
+    }
+
+    str = url.substr(url.lastIndexOf(".") + 1);
+
+    // don't include any params after the filename
+    if (hasParams.test(str)) {
+      str = str.substr(0 ,(str.indexOf("?") !== -1) ? str.indexOf("?") : str.length);
+
+      str = str.substr(0, (str.indexOf("#") !== -1) ? str.indexOf("#") : str.length);
+
+      str = str.substr(0, (str.indexOf("&") !== -1) ? str.indexOf("&") : str.length);
+    }
+
+    return str.toLowerCase();
+  }
+
+  function getInsertData(params) {
+    var BASE_INSERT_SCHEMA = {
+      "kind": "bigquery#tableDataInsertAllRequest",
+      "skipInvalidRows": false,
+      "ignoreUnknownValues": false,
+      "templateSuffix": getSuffix(),
+      "rows": [{
+        "insertId": ""
+      }]
+    },
+    data = JSON.parse(JSON.stringify(BASE_INSERT_SCHEMA));
+
+    data.rows[0].insertId = Math.random().toString(36).substr(2).toUpperCase();
+    data.rows[0].json = JSON.parse(JSON.stringify(params));
+    data.rows[0].json.ts = new Date().toISOString();
+
+    return data;
+  }
+
+  function logEvent(table, params) {
+    getEventParams(params, function(json) {
+      if (json !== null) {
+        RiseVision.Common.Logger.log(table, json);
+      }
+    });
+  }
+
+  function logEventToPlayer(table, params) {
+    try {
+      top.postToPlayer( {
+        message: "widget-log",
+        table: table,
+        params: JSON.stringify(params),
+        suffix: getSuffix()
+      } );
+    } catch (err) {
+      console.log("widget-common.logEventToPlayer", err);
+    }
+  }
+
+  /* Set the Company and Display IDs. */
+  function setIds(company, display) {
+    companyId = company;
+    displayId = display;
+  }
+
+  function setVersion(value) {
+    version = value;
+  }
+
+  return {
+    "getInsertData": getInsertData,
+    "getFileFormat": getFileFormat,
+    "logEvent": logEvent,
+    "logEventToPlayer": logEventToPlayer,
+    "setIds": setIds,
+    "setVersion": setVersion
+  };
+})();
+
+RiseVision.Common.Logger = (function(utils) {
+  "use strict";
+
+  var REFRESH_URL = "https://www.googleapis.com/oauth2/v3/token?client_id=" + WIDGET_COMMON_CONFIG.LOGGER_CLIENT_ID +
+      "&client_secret=" + WIDGET_COMMON_CONFIG.LOGGER_CLIENT_SECRET +
+      "&refresh_token=" + WIDGET_COMMON_CONFIG.LOGGER_REFRESH_TOKEN +
+      "&grant_type=refresh_token";
+
+  var serviceUrl = "https://www.googleapis.com/bigquery/v2/projects/client-side-events/datasets/Widget_Events/tables/TABLE_ID/insertAll",
+    throttle = false,
+    throttleDelay = 1000,
+    lastEvent = "",
+    refreshDate = 0,
+    token = "";
+
+  /*
+   *  Private Methods
+   */
+  function refreshToken(cb) {
+    var xhr = new XMLHttpRequest();
+
+    if (new Date() - refreshDate < 3580000) {
+      return cb({});
+    }
+
+    xhr.open("POST", REFRESH_URL, true);
+    xhr.onloadend = function() {
+      var resp = {};
+      try {
+        resp = JSON.parse(xhr.response);
+      } catch(e) {
+        console.warn("Can't refresh logger token - ", e.message);
+      }
+      cb({ token: resp.access_token, refreshedAt: new Date() });
+    };
+
+    xhr.send();
+  }
+
+  function isThrottled(event) {
+    return throttle && (lastEvent === event);
+  }
+
+  /*
+   *  Public Methods
+   */
+  function log(tableName, params) {
+    if (!tableName || !params || (params.hasOwnProperty("event") && !params.event) ||
+      (params.hasOwnProperty("event") && isThrottled(params.event))) {
+      return;
+    }
+
+    // don't log if display id is invalid or preview/local
+    if (!params.display_id || params.display_id === "preview" || params.display_id === "display_id" ||
+      params.display_id === "displayId") {
+      return;
+    }
+
+    try {
+      if ( top.postToPlayer && top.enableWidgetLogging ) {
+        // send log data to player instead of BQ
+        return utils.logEventToPlayer( tableName, params );
+      }
+    } catch ( e ) {
+      console.log( "widget-common: logger", e );
+    }
+
+    throttle = true;
+    lastEvent = params.event;
+
+    setTimeout(function () {
+      throttle = false;
+    }, throttleDelay);
+
+    function insertWithToken(refreshData) {
+      var xhr = new XMLHttpRequest(),
+        insertData, url;
+
+      url = serviceUrl.replace("TABLE_ID", tableName);
+      refreshDate = refreshData.refreshedAt || refreshDate;
+      token = refreshData.token || token;
+      insertData = utils.getInsertData(params);
+
+      // Insert the data.
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.setRequestHeader("Authorization", "Bearer " + token);
+
+      if (params.cb && typeof params.cb === "function") {
+        xhr.onloadend = function() {
+          params.cb(xhr.response);
+        };
+      }
+
+      xhr.send(JSON.stringify(insertData));
+    }
+
+    return refreshToken(insertWithToken);
+  }
+
+  return {
+    "log": log
+  };
+})(RiseVision.Common.LoggerUtils);
+
+/* global WebFont */
+
 var RiseVision = RiseVision || {};
 
 RiseVision.Common = RiseVision.Common || {};
@@ -5,13 +265,13 @@ RiseVision.Common = RiseVision.Common || {};
 RiseVision.Common.Utilities = (function() {
 
   function getFontCssStyle(className, fontObj) {
-    var family = "font-family:" + fontObj.font.family + "; ";
-    var color = "color: " + fontObj.color + "; ";
-    var size = "font-size: " + fontObj.size + "px; ";
+    var family = "font-family: " + decodeURIComponent(fontObj.font.family).replace(/'/g, "") + "; ";
+    var color = "color: " + (fontObj.color ? fontObj.color : fontObj.forecolor) + "; ";
+    var size = "font-size: " + (fontObj.size.indexOf("px") === -1 ? fontObj.size + "px; " : fontObj.size + "; ");
     var weight = "font-weight: " + (fontObj.bold ? "bold" : "normal") + "; ";
     var italic = "font-style: " + (fontObj.italic ? "italic" : "normal") + "; ";
     var underline = "text-decoration: " + (fontObj.underline ? "underline" : "none") + "; ";
-    var highlight = "background-color: " + fontObj.highlightColor + "; ";
+    var highlight = "background-color: " + (fontObj.highlightColor ? fontObj.highlightColor : fontObj.backcolor) + ";";
 
     return "." + className + " {" + family + color + size + weight + italic + underline + highlight + "}";
   }
@@ -53,23 +313,75 @@ RiseVision.Common.Utilities = (function() {
    *           object   contentDoc    Document object into which to inject styles
    *                                  and load fonts (optional).
    */
-  function loadFonts(settings, contentDoc) {
-    settings.forEach(function(item) {
-      if (item.class && item.fontSetting) {
-        addCSSRules([ getFontCssStyle(item.class, item.fontSetting) ]);
-      }
+  function loadFonts(settings, cb) {
+    var families = null,
+      googleFamilies = [],
+      customFamilies = [],
+      customUrls = [];
 
-      if (item.fontSetting.font.type) {
-        if (item.fontSetting.font.type === "custom" && item.fontSetting.font.family &&
-          item.fontSetting.font.url) {
-          loadCustomFont(item.fontSetting.font.family, item.fontSetting.font.url,
-            contentDoc);
-        }
-        else if (item.fontSetting.font.type === "google" && item.fontSetting.font.family) {
-          loadGoogleFont(item.fontSetting.font.family, contentDoc);
-        }
+    function callback() {
+      if (cb && typeof cb === "function") {
+        cb();
+      }
+    }
+
+    function onGoogleFontsLoaded() {
+      callback();
+    }
+
+    if (!settings || settings.length === 0) {
+      callback();
+      return;
+    }
+
+    // Check for custom css class names and add rules if so
+    settings.forEach(function(item) {
+      if (item.class && item.fontStyle) {
+        addCSSRules([ getFontCssStyle(item.class, item.fontStyle) ]);
       }
     });
+
+    // Google fonts
+    for (var i = 0; i < settings.length; i++) {
+      if (settings[i].fontStyle && settings[i].fontStyle.font.type &&
+        (settings[i].fontStyle.font.type === "google")) {
+        // Remove fallback font.
+        families = settings[i].fontStyle.font.family.split(",")[0];
+
+        // strip possible single quotes
+        families = families.replace(/'/g, "");
+
+        googleFamilies.push(families);
+      }
+    }
+
+    // Custom fonts
+    for (i = 0; i < settings.length; i++) {
+      if (settings[i].fontStyle && settings[i].fontStyle.font.type &&
+        (settings[i].fontStyle.font.type === "custom")) {
+        // decode value and strip single quotes
+        customFamilies.push(decodeURIComponent(settings[i].fontStyle.font.family).replace(/'/g, ""));
+        // strip single quotes
+        customUrls.push(settings[i].fontStyle.font.url.replace(/'/g, "\\'"));
+      }
+    }
+
+    if (googleFamilies.length === 0 && customFamilies.length === 0) {
+      callback();
+    }
+    else {
+      // Load the fonts
+      for (var j = 0; j < customFamilies.length; j += 1) {
+        loadCustomFont(customFamilies[j], customUrls[j]);
+      }
+
+      if (googleFamilies.length > 0) {
+        loadGoogleFonts(googleFamilies, onGoogleFontsLoaded);
+      }
+      else {
+        callback();
+      }
+    }
   }
 
   function loadCustomFont(family, url, contentDoc) {
@@ -85,19 +397,30 @@ RiseVision.Common.Utilities = (function() {
     }
   }
 
-  function loadGoogleFont(family, contentDoc) {
-    var stylesheet = document.createElement("link");
+  function loadGoogleFonts(families, cb) {
+    WebFont.load({
+      google: {
+        families: families
+      },
+      active: function() {
+        if (cb && typeof cb === "function") {
+          cb();
+        }
+      },
+      inactive: function() {
+        if (cb && typeof cb === "function") {
+          cb();
+        }
+      },
+      timeout: 5000
+    });
+  }
 
-    contentDoc = contentDoc || document;
+  function loadScript( src ) {
+    var script = document.createElement( "script" );
 
-    stylesheet.setAttribute("rel", "stylesheet");
-    stylesheet.setAttribute("type", "text/css");
-    stylesheet.setAttribute("href", "https://fonts.googleapis.com/css?family=" +
-      family);
-
-    if (stylesheet !== null) {
-      contentDoc.getElementsByTagName("head")[0].appendChild(stylesheet);
-    }
+    script.src = src;
+    document.body.appendChild( script );
   }
 
   function preloadImages(urls) {
@@ -110,15 +433,24 @@ RiseVision.Common.Utilities = (function() {
     }
   }
 
+  /**
+   * Get the current URI query param
+   */
   function getQueryParameter(param) {
-    var query = window.location.search.substring(1),
-      vars = query.split("&"),
+    return getQueryStringParameter(param, window.location.search.substring(1));
+  }
+
+  /**
+   * Get the query parameter from a query string
+   */
+  function getQueryStringParameter(param, query) {
+    var vars = query.split("&"),
       pair;
 
     for (var i = 0; i < vars.length; i++) {
       pair = vars[i].split("=");
 
-      if (pair[0] == param) {
+      if (pair[0] == param) { // jshint ignore:line
         return decodeURIComponent(pair[1]);
       }
     }
@@ -126,14 +458,114 @@ RiseVision.Common.Utilities = (function() {
     return "";
   }
 
+  /**
+   * Get date object from player version string
+   */
+  function getDateObjectFromPlayerVersionString(playerVersion) {
+    var reggie = /(\d{4})\.(\d{2})\.(\d{2})\.(\d{2})\.(\d{2})/;
+    var dateArray = reggie.exec(playerVersion);
+    if (dateArray) {
+      return new Date(
+        (+dateArray[1]),
+          (+dateArray[2])-1, // Careful, month starts at 0!
+        (+dateArray[3]),
+        (+dateArray[4]),
+        (+dateArray[5])
+      );
+    } else {
+      return;
+    }
+  }
+
+  function getRiseCacheErrorMessage(statusCode) {
+    var errorMessage = "";
+    switch (statusCode) {
+      case 404:
+        errorMessage = "The file does not exist or cannot be accessed.";
+        break;
+      case 507:
+        errorMessage = "There is not enough disk space to save the file on Rise Cache.";
+        break;
+      default:
+        errorMessage = "There was a problem retrieving the file from Rise Cache.";
+    }
+
+    return errorMessage;
+  }
+
+  function unescapeHTML(html) {
+    var div = document.createElement("div");
+
+    div.innerHTML = html;
+
+    return div.textContent;
+  }
+
+  function hasInternetConnection(filePath, callback) {
+    var xhr = new XMLHttpRequest();
+
+    if (!filePath || !callback || typeof callback !== "function") {
+      return;
+    }
+
+    xhr.open("HEAD", filePath + "?cb=" + new Date().getTime(), false);
+
+    try {
+      xhr.send();
+
+      callback((xhr.status >= 200 && xhr.status < 304));
+
+    } catch (e) {
+      callback(false);
+    }
+  }
+
+  /**
+   * Check if chrome version is under a certain version
+   */
+  function isLegacy() {
+    var legacyVersion = 25;
+
+    var match = navigator.userAgent.match(/Chrome\/(\S+)/);
+    var version = match ? match[1] : 0;
+
+    if (version) {
+      version = parseInt(version.substring(0,version.indexOf(".")));
+
+      if (version <= legacyVersion) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Adds http:// or https:// protocol to url if the protocol is missing
+   */
+  function addProtocol(url, secure) {
+    if (!/^(?:f|ht)tps?\:\/\//.test(url)) {
+      url = ((secure) ? "https://" : "http://") + url;
+    }
+    return url;
+  }
+
   return {
-    getQueryParameter: getQueryParameter,
-    getFontCssStyle:  getFontCssStyle,
-    addCSSRules:      addCSSRules,
-    loadFonts:        loadFonts,
-    loadCustomFont:   loadCustomFont,
-    loadGoogleFont:   loadGoogleFont,
-    preloadImages:    preloadImages
+    addProtocol:              addProtocol,
+    getQueryParameter:        getQueryParameter,
+    getQueryStringParameter:  getQueryStringParameter,
+    getFontCssStyle:          getFontCssStyle,
+    addCSSRules:              addCSSRules,
+    loadFonts:                loadFonts,
+    loadCustomFont:           loadCustomFont,
+    loadGoogleFonts:          loadGoogleFonts,
+    loadScript:               loadScript,
+    preloadImages:            preloadImages,
+    getRiseCacheErrorMessage: getRiseCacheErrorMessage,
+    unescapeHTML:             unescapeHTML,
+    hasInternetConnection:    hasInternetConnection,
+    isLegacy:                 isLegacy,
+    getDateObjectFromPlayerVersionString: getDateObjectFromPlayerVersionString
   };
 })();
 
@@ -5268,6 +5700,7 @@ RiseVision.Calendar = (function (gadgets) {
     isLoading = true,
     isExpired = false,
     currentDay,
+    _errorLog = null,
     prefs = new gadgets.Prefs(),
     utils = RiseVision.Common.Utilities,
     $container = $("#container"),
@@ -5324,9 +5757,9 @@ RiseVision.Calendar = (function (gadgets) {
       "success": addEvents,
       "error": function(reason) {
         if (reason && reason.result && reason.result.error) {
-          if (reason.result.error.message) {
-            console.log("Error retrieving calendar data: " + reason.result.error.message);
-          }
+          var errorMessage = JSON.stringify(reason.result);
+          logEvent( { "event": "error", "event_details": errorMessage }, true );
+          console.log("Error retrieving calendar data: " + errorMessage);
 
           // Network error. Retry later.
           if (reason.result.error.code && reason.result.error.code === -1) {
@@ -5474,6 +5907,8 @@ RiseVision.Calendar = (function (gadgets) {
     removeAutoscroll();
     applyAutoScroll();
 
+    $(".error").hide();
+
     if ( isLoading ) {
       isLoading = false;
       ready();
@@ -5559,6 +5994,7 @@ RiseVision.Calendar = (function (gadgets) {
   function refresh() {
     if (isExpired) {
       isExpired = false;
+      _errorLog = null;
       stopPUDTimer();
       getEventsList();
     }
@@ -5571,63 +6007,101 @@ RiseVision.Calendar = (function (gadgets) {
 
   function done() {
     gadgets.rpc.call("", "rsevent_done", null, prefs.getString("id"));
+
+    // Any errors need to be logged before the done event.
+    if ( _errorLog !== null ) {
+      logEvent( _errorLog, true );
+    }
+  }
+
+  function logEvent( params, isError ) {
+    if ( isError ) {
+      _errorLog = params;
+    }
+
+    RiseVision.Common.LoggerUtils.logEvent( "calendar_events", params );
   }
 
   /*
    *  Public Methods
    */
-  function getAdditionalParams(names, values) {
-    if (Array.isArray(names) && names.length > 0 && names[0] === "additionalParams") {
-      if (Array.isArray(values) && values.length > 0) {
-        params = JSON.parse(values[0]);
+  function configure(names, values) {
+    var companyId = "",
+        displayId = "";
 
-        // Load fonts.
-        var fontSettings = [
-          {
-            "class": "date",
-            "fontSetting": params.dateFont
-          },
-          {
-            "class": "time",
-            "fontSetting": params.timeFont
-          },
-          {
-            "class": "summary",
-            "fontSetting": params.titleFont
-          },
-          {
-            "class": "location",
-            "fontSetting": params.locationFont
-          },
-          {
-            "class": "description",
-            "fontSetting": params.descriptionFont
-          }
-        ];
-
-        utils.loadFonts(fontSettings);
-
-        // Store the base HTML in a DocumentFragment so that it can be used later.
-        fragment = document.createDocumentFragment();
-        daysNode = document.getElementById("days");
-
-        // Add the HTML to the fragment.
-        if (daysNode) {
-          while (daysNode.firstChild) {
-            fragment.appendChild(daysNode.firstChild);
-          }
+    if ( Array.isArray( names ) && names.length > 0 && Array.isArray( values ) && values.length > 0 ) {
+        // company id
+        if ( names[ 0 ] === "companyId" ) {
+          companyId = values[ 0 ];
         }
 
-        $container.width(prefs.getInt("rsW"));
-        $container.height(prefs.getInt("rsH"));
+        // display id
+        if ( names[ 1 ] === "displayId" ) {
+          if ( values[ 1 ] ) {
+            displayId = values[ 1 ];
+          } else {
+            displayId = "preview";
+          }
+        }
+        RiseVision.Common.LoggerUtils.setIds( companyId, displayId );
 
-        $scrollContainer.width(prefs.getInt("rsW"));
-        $scrollContainer.height(prefs.getInt("rsH"));
+        if ( names[ 2 ] === "additionalParams" ) {
+          params = JSON.parse( values[ 2 ] );
 
-        getEventsList();
+          setAdditionalParams( params );
+        }
       }
     }
-  }
+
+    function setAdditionalParams( params ) {
+      // Load fonts.
+      var fontSettings = [
+        {
+          "class": "date",
+          "fontStyle": params.dateFont
+        },
+        {
+          "class": "time",
+          "fontStyle": params.timeFont
+        },
+        {
+          "class": "summary",
+          "fontStyle": params.titleFont
+        },
+        {
+          "class": "location",
+          "fontStyle": params.locationFont
+        },
+        {
+          "class": "description",
+          "fontStyle": params.descriptionFont
+        }
+      ];
+
+      utils.loadFonts(fontSettings);
+
+      // Store the base HTML in a DocumentFragment so that it can be used later.
+      fragment = document.createDocumentFragment();
+      daysNode = document.getElementById("days");
+
+      // Add the HTML to the fragment.
+      if (daysNode) {
+        while (daysNode.firstChild) {
+          fragment.appendChild(daysNode.firstChild);
+        }
+      }
+
+      $container.width(prefs.getInt("rsW"));
+      $container.height(prefs.getInt("rsH"));
+
+      $scrollContainer.width(prefs.getInt("rsW"));
+      $scrollContainer.height(prefs.getInt("rsH"));
+
+      getEventsList();
+
+      logEvent( { "event": "Configuration", "calendar_id": params.calendar || "no calendar id" }, true );
+    }
+
 
   function play() {
     var $scroll = getScrollEl();
@@ -5663,7 +6137,9 @@ RiseVision.Calendar = (function (gadgets) {
   }
 
   return {
-    getAdditionalParams: getAdditionalParams,
+    logEvent           : logEvent,
+    configure          : configure,
+    setAdditionalParams: setAdditionalParams,
     play               : play,
     pause              : pause,
     stop               : stop
@@ -5952,7 +6428,7 @@ function init() {
   gapi.client.setApiKey(config.apiKey);
 
   gapi.client.load("calendar", "v3").then(function() {
-    gadgets.rpc.register("rsparam_set_" + id, RiseVision.Calendar.getAdditionalParams);
-    gadgets.rpc.call("", "rsparam_get", null, id, ["additionalParams"]);
+    gadgets.rpc.register("rsparam_set_" + id, RiseVision.Calendar.configure);
+    gadgets.rpc.call("", "rsparam_get", null, id, ["companyId", "displayId", "additionalParams"]);
   });
 }
