@@ -13,6 +13,7 @@ RiseVision.Calendar = (function (gadgets) {
     isLoading = true,
     isExpired = false,
     currentDay,
+    _errorLog = null,
     prefs = new gadgets.Prefs(),
     utils = RiseVision.Common.Utilities,
     $container = $("#container"),
@@ -69,9 +70,9 @@ RiseVision.Calendar = (function (gadgets) {
       "success": addEvents,
       "error": function(reason) {
         if (reason && reason.result && reason.result.error) {
-          if (reason.result.error.message) {
-            console.log("Error retrieving calendar data: " + reason.result.error.message);
-          }
+          var errorMessage = JSON.stringify(reason.result);
+          logEvent( { "event": "error", "event_details": errorMessage }, true );
+          console.log("Error retrieving calendar data: " + errorMessage);
 
           // Network error. Retry later.
           if (reason.result.error.code && reason.result.error.code === -1) {
@@ -219,6 +220,8 @@ RiseVision.Calendar = (function (gadgets) {
     removeAutoscroll();
     applyAutoScroll();
 
+    $(".error").hide();
+
     if ( isLoading ) {
       isLoading = false;
       ready();
@@ -304,6 +307,7 @@ RiseVision.Calendar = (function (gadgets) {
   function refresh() {
     if (isExpired) {
       isExpired = false;
+      _errorLog = null;
       stopPUDTimer();
       getEventsList();
     }
@@ -316,63 +320,101 @@ RiseVision.Calendar = (function (gadgets) {
 
   function done() {
     gadgets.rpc.call("", "rsevent_done", null, prefs.getString("id"));
+
+    // Any errors need to be logged before the done event.
+    if ( _errorLog !== null ) {
+      logEvent( _errorLog, true );
+    }
+  }
+
+  function logEvent( params, isError ) {
+    if ( isError ) {
+      _errorLog = params;
+    }
+
+    RiseVision.Common.LoggerUtils.logEvent( "calendar_events", params );
   }
 
   /*
    *  Public Methods
    */
-  function getAdditionalParams(names, values) {
-    if (Array.isArray(names) && names.length > 0 && names[0] === "additionalParams") {
-      if (Array.isArray(values) && values.length > 0) {
-        params = JSON.parse(values[0]);
+  function configure(names, values) {
+    var companyId = "",
+        displayId = "";
 
-        // Load fonts.
-        var fontSettings = [
-          {
-            "class": "date",
-            "fontSetting": params.dateFont
-          },
-          {
-            "class": "time",
-            "fontSetting": params.timeFont
-          },
-          {
-            "class": "summary",
-            "fontSetting": params.titleFont
-          },
-          {
-            "class": "location",
-            "fontSetting": params.locationFont
-          },
-          {
-            "class": "description",
-            "fontSetting": params.descriptionFont
-          }
-        ];
-
-        utils.loadFonts(fontSettings);
-
-        // Store the base HTML in a DocumentFragment so that it can be used later.
-        fragment = document.createDocumentFragment();
-        daysNode = document.getElementById("days");
-
-        // Add the HTML to the fragment.
-        if (daysNode) {
-          while (daysNode.firstChild) {
-            fragment.appendChild(daysNode.firstChild);
-          }
+    if ( Array.isArray( names ) && names.length > 0 && Array.isArray( values ) && values.length > 0 ) {
+        // company id
+        if ( names[ 0 ] === "companyId" ) {
+          companyId = values[ 0 ];
         }
 
-        $container.width(prefs.getInt("rsW"));
-        $container.height(prefs.getInt("rsH"));
+        // display id
+        if ( names[ 1 ] === "displayId" ) {
+          if ( values[ 1 ] ) {
+            displayId = values[ 1 ];
+          } else {
+            displayId = "preview";
+          }
+        }
+        RiseVision.Common.LoggerUtils.setIds( companyId, displayId );
 
-        $scrollContainer.width(prefs.getInt("rsW"));
-        $scrollContainer.height(prefs.getInt("rsH"));
+        if ( names[ 2 ] === "additionalParams" ) {
+          params = JSON.parse( values[ 2 ] );
 
-        getEventsList();
+          setAdditionalParams( params );
+        }
       }
     }
-  }
+
+    function setAdditionalParams( params ) {
+      // Load fonts.
+      var fontSettings = [
+        {
+          "class": "date",
+          "fontStyle": params.dateFont
+        },
+        {
+          "class": "time",
+          "fontStyle": params.timeFont
+        },
+        {
+          "class": "summary",
+          "fontStyle": params.titleFont
+        },
+        {
+          "class": "location",
+          "fontStyle": params.locationFont
+        },
+        {
+          "class": "description",
+          "fontStyle": params.descriptionFont
+        }
+      ];
+
+      utils.loadFonts(fontSettings);
+
+      // Store the base HTML in a DocumentFragment so that it can be used later.
+      fragment = document.createDocumentFragment();
+      daysNode = document.getElementById("days");
+
+      // Add the HTML to the fragment.
+      if (daysNode) {
+        while (daysNode.firstChild) {
+          fragment.appendChild(daysNode.firstChild);
+        }
+      }
+
+      $container.width(prefs.getInt("rsW"));
+      $container.height(prefs.getInt("rsH"));
+
+      $scrollContainer.width(prefs.getInt("rsW"));
+      $scrollContainer.height(prefs.getInt("rsH"));
+
+      getEventsList();
+
+      logEvent( { "event": "Configuration", "calendar_id": params.calendar || "no calendar id" }, true );
+    }
+
 
   function play() {
     var $scroll = getScrollEl();
@@ -408,7 +450,9 @@ RiseVision.Calendar = (function (gadgets) {
   }
 
   return {
-    getAdditionalParams: getAdditionalParams,
+    logEvent           : logEvent,
+    configure          : configure,
+    setAdditionalParams: setAdditionalParams,
     play               : play,
     pause              : pause,
     stop               : stop

@@ -103,7 +103,7 @@ function init() {
   gapi.client.setApiKey(config.apiKey);
 
   gapi.client.load("calendar", "v3").then(function() {
-    gadgets.rpc.register("rsparam_set_" + id, RiseVision.Calendar.getAdditionalParams);
-    gadgets.rpc.call("", "rsparam_get", null, id, ["additionalParams"]);
+    gadgets.rpc.register("rsparam_set_" + id, RiseVision.Calendar.configure);
+    gadgets.rpc.call("", "rsparam_get", null, id, ["companyId", "displayId", "additionalParams"]);
   });
 }
