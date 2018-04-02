@@ -18,7 +18,9 @@ RiseVision.Calendar = (function (gadgets) {
     utils = RiseVision.Common.Utilities,
     $container = $("#container"),
     $scrollContainer = $("#scrollContainer"),
-    viewerPaused = true;
+    viewerPaused = true,
+    REFRESH_RATE = 60*60*1000; /* 1 hour */
+
 
   /*
    *  Private Methods
@@ -292,8 +294,6 @@ RiseVision.Calendar = (function (gadgets) {
   }
 
   function startRefreshTimer() {
-    var delay = 300000; /* 5 minutes */
-
     setTimeout(function() {
       isExpired = true;
 
@@ -301,7 +301,7 @@ RiseVision.Calendar = (function (gadgets) {
       if (!canScroll()) {
         refresh();
       }
-    }, delay);
+    }, REFRESH_RATE);
   }
 
   function refresh() {
