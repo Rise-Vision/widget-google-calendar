@@ -37,6 +37,7 @@
     "jshint-stylish": "^2.1.0",
     "phantomjs": "^1.9.16",
     "run-sequence": "^0.3.2",
+    "uglify-js": "^3.3.18",
     "widget-tester": "git://github.com/Rise-Vision/widget-tester.git#1.7.4"
   }
 }
