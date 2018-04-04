@@ -19,7 +19,7 @@ RiseVision.Calendar = (function (gadgets) {
     $container = $("#container"),
     $scrollContainer = $("#scrollContainer"),
     viewerPaused = true,
-    REFRESH_RATE = 60*60*1000; /* 1 hour */
+    REFRESH_RATE = 30*60*1000; /* 30 minutes */
 
 
   /*
