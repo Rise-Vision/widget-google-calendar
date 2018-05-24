@@ -34,6 +34,7 @@
     "gulp-usemin": "0.3.7",
     "gulp-util": "~2.2.17",
     "gulp-watch": "^0.6.8",
+    "hoek": "5.0.3",
     "jshint-stylish": "^2.1.0",
     "phantomjs": "^1.9.16",
     "run-sequence": "^0.3.2",
