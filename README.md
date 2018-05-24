@@ -47,7 +47,7 @@ At this time Chrome is the only browser that this project and Rise Vision suppor
 - [npm](https://www.npmjs.org)
 - [Bower](http://bower.io/)
 - [Gulp](http://gulpjs.com/)
-- [Protractor](http://angular.github.io/protractor/#/), [CasperJS](http://casperjs.org/), [Karma](http://karma-runner.github.io/0.12/index.html), [Mocha](http://mochajs.org/), [Chai](http://chaijs.com/) and [Chai as Promised](https://github.com/domenic/chai-as-promised/) for testing
+- [Protractor](http://angular.github.io/protractor/#/), [CasperJS](http://casperjs.org/), [Karma](http://karma-runner.github.io/0.12/index.html), [Mocha](http://mochajs.org/), [Chai](http://chaijs.com/), [Chai as Promised](https://github.com/domenic/chai-as-promised/), and [PhantomJS](http://phantomjs.org/) for testing
 
 ## Development
 
@@ -85,8 +85,9 @@ The source code for the Widget can be found in the `src` folder, and this is whe
 To preview Widgets locally, you'll need to use the [Widget Preview](https://github.com/Rise-Vision/widget-preview) app available [here](http://192.254.220.36/~rvi/widget-preview/).
 
 ### Testing
-Execute the following command in Terminal to run both end-to-end and unit tests:
+Testing requires that you have [PhantomJS](http://phantomjs.org) installed on your machine. Execute the following commands in Terminal to run both end-to-end and unit tests:
 ```
+npm install -g phantomjs-prebuilt
 gulp test
 ```
 
