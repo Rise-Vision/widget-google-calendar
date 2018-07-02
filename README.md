@@ -76,7 +76,7 @@ Next, perform these additional steps at the command line:
 cd widget-google-calendar
 npm install
 bower install
-gulp build
+npm run build
 ```
 
 The source code for the Widget can be found in the `src` folder, and this is where you can make any necessary code changes.
@@ -128,4 +128,4 @@ If you would like more information on developing applications for Rise Vision, p
 
 **Facilitator**
 
-[Donna Peplinskie](https://github.com/donnapep "Donna Peplinskie")
+[Stuart Lees](https://github.com/stulees "Stuart Lees")
