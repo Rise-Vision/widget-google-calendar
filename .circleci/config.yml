@@ -4,7 +4,7 @@ jobs:
   preconditions:
     working_directory: ~/Rise-Vision/widget-google-calendar
     shell: /bin/bash --login
-    docker: &DOCKERIMAGE
+    docker: &BUILDIMAGE
       - image: circleci/build-image:ubuntu-14.04-XXL-upstart-1189-5614f37
         command: /sbin/init
     steps:
@@ -25,9 +25,7 @@ jobs:
   setup:
     working_directory: ~/Rise-Vision/widget-google-calendar
     shell: /bin/bash --login
-    environment:
-      awscli: /home/ubuntu/aws/bin/aws
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - checkout
       - restore_cache:
@@ -46,7 +44,7 @@ jobs:
             - src/components
 
   aws-setup:
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - restore_cache:
           key: aws-cache2
@@ -65,7 +63,7 @@ jobs:
   test:
     working_directory: ~/Rise-Vision/widget-google-calendar
     shell: /bin/bash --login
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
@@ -83,7 +81,7 @@ jobs:
   build:
     working_directory: ~/Rise-Vision/widget-google-calendar
     shell: /bin/bash --login
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
@@ -107,7 +105,7 @@ jobs:
     shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
@@ -125,7 +123,7 @@ jobs:
     shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
@@ -137,6 +135,14 @@ jobs:
       - run: echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME
       - run: $awscli s3 ls s3://$BUCKET_NAME || ($awscli s3 mb s3://$BUCKET_NAME && $awscli s3api put-bucket-acl --bucket $BUCKET_NAME --grant-read 'uri="http://acs.amazonaws.com/groups/global/AllUsers"')
       - run: $awscli s3 sync ./dist s3://$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+
+  generate-artifacts:
+    shell: /bin/bash --login
+    docker: *BUILDIMAGE
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
       - run: tar czvf dist.tar.gz dist
       - store_artifacts:
           path: dist.tar.gz
@@ -174,3 +180,6 @@ workflows:
             branches:
               only:
                 - master
+      - generate-artifacts:
+          requires:
+            - build
