@@ -13,7 +13,6 @@ RiseVision.Calendar = (function (gadgets) {
     isLoading = true,
     isExpired = false,
     currentDay,
-    _errorLog = null,
     prefs = new gadgets.Prefs(),
     utils = RiseVision.Common.Utilities,
     $container = $("#container"),
@@ -73,8 +72,11 @@ RiseVision.Calendar = (function (gadgets) {
       "error": function(reason) {
         if (reason && reason.result && reason.result.error) {
           var errorMessage = JSON.stringify(reason.result);
-          logEvent( { "event": "error", "event_details": errorMessage }, true );
-          console.log("Error retrieving calendar data: " + errorMessage);
+
+          logEvent( {
+            "event": "error",
+            "event_details": errorMessage
+          } );
 
           // Network error. Retry later.
           if (reason.result.error.code && reason.result.error.code === -1) {
@@ -307,7 +309,6 @@ RiseVision.Calendar = (function (gadgets) {
   function refresh() {
     if (isExpired) {
       isExpired = false;
-      _errorLog = null;
       stopPUDTimer();
       getEventsList();
     }
@@ -320,18 +321,9 @@ RiseVision.Calendar = (function (gadgets) {
 
   function done() {
     gadgets.rpc.call("", "rsevent_done", null, prefs.getString("id"));
-
-    // Any errors need to be logged before the done event.
-    if ( _errorLog !== null ) {
-      logEvent( _errorLog, true );
-    }
   }
 
-  function logEvent( params, isError ) {
-    if ( isError ) {
-      _errorLog = params;
-    }
-
+  function logEvent( params ) {
     RiseVision.Common.LoggerUtils.logEvent( "calendar_events", params );
   }
 
@@ -412,7 +404,10 @@ RiseVision.Calendar = (function (gadgets) {
 
       getEventsList();
 
-      logEvent( { "event": "Configuration", "calendar_id": params.calendar || "no calendar id" }, true );
+      logEvent( {
+        "event": "configuration",
+        "calendar_id": params.calendar || "no calendar id"
+      } );
     }
 
 
