@@ -30,8 +30,8 @@ jobs:
       - checkout
       - restore_cache:
           key: node-cache-{{ checksum "package.json" }}
-      - run: nvm install stable && nvm alias default stable
-      - run: npm install -g gulp bower casperjs@1.1.0-beta3
+      - run: nvm install 6.9.1 && nvm alias default 6.9.1
+      - run: npm install -g gulp bower casperjs
       - run: npm install
       - run: bower install
       - save_cache:
@@ -89,7 +89,7 @@ jobs:
       - run: sudo dpkg -i google-chrome-stable.deb
       # make chrome lxc-friendly
       - run: sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
-      - run: nvm install stable && nvm alias default stable
+      - run: nvm install 6.9.1 && nvm alias default 6.9.1
       - run: NODE_ENV=dev npm run test
 
   build:
@@ -102,7 +102,7 @@ jobs:
           at: .
       - restore_cache:
           key: node-cache-{{ checksum "package.json" }}
-      - run: nvm install stable && nvm alias default stable
+      - run: nvm install 6.9.1 && nvm alias default 6.9.1
       - run: |
           if [ "${CIRCLE_BRANCH}" != "master" ]; then
             NODE_ENV=test npm run build
