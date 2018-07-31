@@ -235,7 +235,6 @@ jobs:
       - run: gsutil rsync -d -r dist gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
       - run: gsutil -m setmeta -r -h "Cache-Control:private, max-age=0" gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
       - run: gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
-      - run: ./upload-dist.sh
 
   generate-artifacts:
     shell: /bin/bash --login
