@@ -32,7 +32,7 @@
   "dependencies": {
     "angular": "1.2.18",
     "angular-route": "1.2.18",
-    "auto-scroll": "https://github.com/Rise-Vision/auto-scroll.git#2.0.1",
+    "auto-scroll": "https://github.com/Rise-Vision/auto-scroll.git#2.0.2",
     "moment": "~2.8.3",
     "moment-range": "~1.0.5",
     "rv-common-style": "https://github.com/Rise-Vision/common-style.git#1.1.12",
