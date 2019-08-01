@@ -24,7 +24,7 @@ casper.test.begin("e2e Testing - Undefined settings for newer fields", {
         });
       },
       function then() {
-        test.assertElementCount(".event", 11, "All events are visible, even those that have completed");
+        test.assertElementCount(".event", 12, "All events are visible, even those that have completed");
 
         test.assertSelectorHasText(".day:nth-child(3) .event:nth-child(1) .time", this.evaluate(function() {
           return moment().hour(16).minute(0).second(0).format("h:mma") + " - " + moment().hour(19).minute(0).second(0).format("h:mma");
