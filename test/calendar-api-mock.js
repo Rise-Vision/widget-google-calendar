@@ -128,6 +128,16 @@
                 "dateTime": moment().hour(10).minute(0).second(0).add(-4, "days").format()
               },
               "summary": "Multi-Day Event (not All Day)"
+            },{
+              "description": "This occurs from today 11:30pm to tomorrow 12:30am.",
+              "end": {
+                "dateTime": moment().hour(0).minute(30).second(0).add(1, "days").format()
+              },
+              "location": "Somewhere",
+              "start": {
+                "dateTime": moment().hour(23).minute(30).second(0).format()
+              },
+              "summary": "Single Day Event (Over two days)"
             }
           ];
 

@@ -728,7 +728,7 @@ RiseVision.Common.Logger = (function(utils) {
 								TweenLite.to(self.page, 1, {
 									autoAlpha: 0,
 									onComplete: function() {
-										self.tween.seek(0).pause();
+										self.tween.pause().seek(0);
 
 										if (self.options.by === "page") {
 											pauseHeight = elementHeight;
@@ -5816,6 +5816,15 @@ RiseVision.Calendar = (function (gadgets) {
           if (start.isSame(end, "day")) {
             continue;
           }
+
+          // If this event is today
+          if ( start.diff(moment(), "days") === 0 ) {
+            // Start and end dates are different, but duration is within 24 hours, do not consider it a multi-day event.
+            if ( end.diff( start, "days" ) === 0 ) {
+              continue;
+            }
+          }
+
         }
         // All day event that may or may not span multiple days.
         else {

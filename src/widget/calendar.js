@@ -129,6 +129,15 @@ RiseVision.Calendar = (function (gadgets) {
           if (start.isSame(end, "day")) {
             continue;
           }
+
+          // If this event is today
+          if ( start.diff(moment(), "days") === 0 ) {
+            // Start and end dates are different, but duration is within 24 hours, do not consider it a multi-day event.
+            if ( end.diff( start, "days" ) === 0 ) {
+              continue;
+            }
+          }
+
         }
         // All day event that may or may not span multiple days.
         else {

@@ -16,7 +16,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(4);
+      expect(resp.result.items).to.have.length(5);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -33,7 +33,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(5);
+      expect(resp.result.items).to.have.length(6);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -50,7 +50,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(5);
+      expect(resp.result.items).to.have.length(6);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -67,7 +67,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(5);
+      expect(resp.result.items).to.have.length(6);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -84,7 +84,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(6);
+      expect(resp.result.items).to.have.length(7);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -101,7 +101,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(6);
+      expect(resp.result.items).to.have.length(7);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -118,7 +118,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(6);
+      expect(resp.result.items).to.have.length(7);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -135,7 +135,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(6);
+      expect(resp.result.items).to.have.length(7);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -152,7 +152,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(6);
+      expect(resp.result.items).to.have.length(7);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -169,7 +169,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(6);
+      expect(resp.result.items).to.have.length(7);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -186,7 +186,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(7);
+      expect(resp.result.items).to.have.length(8);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -203,7 +203,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(8);
+      expect(resp.result.items).to.have.length(9);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
@@ -220,7 +220,7 @@ describe("Widget: RiseVision.Calendar.Provider", function() {
       expect(resp).to.exist;
       expect(resp.result).to.exist;
       expect(resp.result.items).to.exist;
-      expect(resp.result.items).to.have.length(9);
+      expect(resp.result.items).to.have.length(10);
     }
 
     RiseVision.Calendar.Provider.getEventsList(params, {
