@@ -2,7 +2,6 @@ version: 2
 
 jobs:
   preconditions:
-    working_directory: ~/Rise-Vision/widget-google-calendar
     docker: &BUILDIMAGE
       - image: jenkinsrise/cci-v2-transitional-widgets:0.0.3
     steps:
@@ -25,13 +24,13 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: node-cache-{{ checksum "package.json" }}
+          key: node-cache-v2-{{ checksum "package.json" }}
       - run: nvm install 6.9.1 && nvm alias default 6.9.1
       - run: npm install -g gulp bower casperjs
       - run: npm install
       - run: bower install
       - save_cache:
-          key: node-cache-{{ checksum "package.json" }}
+          key: node-cache-v2-{{ checksum "package.json" }}
           paths:
             - ./node_modules
       - persist_to_workspace:
@@ -77,7 +76,7 @@ jobs:
       - attach_workspace:
           at: .
       - restore_cache:
-          key: node-cache-{{ checksum "package.json" }}
+          key: node-cache-v2-{{ checksum "package.json" }}
       # latest stable chrome
       - run: curl -L -o google-chrome-stable.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
       - run: sudo dpkg -i google-chrome-stable.deb
@@ -93,7 +92,7 @@ jobs:
       - attach_workspace:
           at: .
       - restore_cache:
-          key: node-cache-{{ checksum "package.json" }}
+          key: node-cache-v2-{{ checksum "package.json" }}
       - run: nvm install 6.9.1 && nvm alias default 6.9.1
       - run: |
           if [ "${CIRCLE_BRANCH}" != "master" ]; then
