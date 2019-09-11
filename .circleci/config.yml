@@ -2,6 +2,7 @@ version: 2
 
 jobs:
   preconditions:
+    shell: /bin/bash --login
     docker: &BUILDIMAGE
       - image: jenkinsrise/cci-v2-transitional-widgets:0.0.3
     steps:
@@ -20,12 +21,16 @@ jobs:
           fi
 
   setup:
+    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
       - restore_cache:
           key: node-cache-v2-{{ checksum "package.json" }}
       - run: curl -o - https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+      - run: |
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" 
       - run: nvm install 6.9.1 && nvm alias default 6.9.1
       - run: npm install -g gulp bower casperjs
       - run: npm install
@@ -71,6 +76,7 @@ jobs:
             - /home/ubuntu/aws
 
   test:
+    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
@@ -87,6 +93,7 @@ jobs:
       - run: NODE_ENV=dev npm run test
 
   build:
+    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
@@ -110,6 +117,7 @@ jobs:
             - test_dist
 
   stage-aws-dev:
+    shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
     docker: *BUILDIMAGE
@@ -133,6 +141,7 @@ jobs:
           $awscli s3 sync ./test_dist s3://$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
 
   stage-gcs-dev:
+    shell: /bin/bash --login
     docker: *GCSIMAGE
     steps:
       - checkout
@@ -153,6 +162,7 @@ jobs:
           gsutil rsync -d -r test_dist gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
 
   stage-aws-prod:
+    shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
     docker: *BUILDIMAGE
@@ -175,6 +185,7 @@ jobs:
           $awscli s3 sync ./dist s3://$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
 
   stage-gcs-prod:
+    shell: /bin/bash --login
     docker: *GCSIMAGE
     steps:
       - checkout
@@ -196,6 +207,7 @@ jobs:
           gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
 
   deploy-aws-stable:
+    shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
     docker: *BUILDIMAGE
@@ -210,6 +222,7 @@ jobs:
       - run: $awscli s3 sync ./dist s3://$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
 
   deploy-gcs-stable:
+    shell: /bin/bash --login
     docker: *GCSIMAGE
     steps:
       - checkout
@@ -223,6 +236,7 @@ jobs:
       - run: gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
 
   generate-artifacts:
+    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
