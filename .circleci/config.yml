@@ -27,6 +27,18 @@ jobs:
       - checkout
       - restore_cache:
           key: node-cache-v2-{{ checksum "package.json" }}
+      - run: |
+          set +e
+          curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+          export NVM_DIR="/opt/circleci/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install v6.9.1
+          nvm alias default v6.9.1
+
+          # Each step uses the same `$BASH_ENV`, so need to modify it
+          echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
+          echo "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"" >> $BASH_ENV
+      - run: sudo npm install -g gulp bower casperjs
       - run: npm install
       - run: bower install
       - save_cache:
