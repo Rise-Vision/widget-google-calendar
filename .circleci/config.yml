@@ -3,10 +3,8 @@ version: 2
 jobs:
   preconditions:
     working_directory: ~/Rise-Vision/widget-google-calendar
-    shell: /bin/bash --login
     docker: &BUILDIMAGE
-      - image: circleci/build-image:ubuntu-14.04-XXL-upstart-1189-5614f37
-        command: /sbin/init
+      - image: jenkinsrise/cci-v2-transitional-widgets:0.0.3
     steps:
       - checkout
       - run: |
@@ -23,8 +21,6 @@ jobs:
           fi
 
   setup:
-    working_directory: ~/Rise-Vision/widget-google-calendar
-    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
@@ -75,8 +71,6 @@ jobs:
             - /home/ubuntu/aws
 
   test:
-    working_directory: ~/Rise-Vision/widget-google-calendar
-    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
@@ -93,8 +87,6 @@ jobs:
       - run: NODE_ENV=dev npm run test
 
   build:
-    working_directory: ~/Rise-Vision/widget-google-calendar
-    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
@@ -118,7 +110,6 @@ jobs:
             - test_dist
 
   stage-aws-dev:
-    shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
     docker: *BUILDIMAGE
@@ -142,7 +133,6 @@ jobs:
           $awscli s3 sync ./test_dist s3://$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
 
   stage-gcs-dev:
-    shell: /bin/bash --login
     docker: *GCSIMAGE
     steps:
       - checkout
@@ -163,7 +153,6 @@ jobs:
           gsutil rsync -d -r test_dist gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
 
   stage-aws-prod:
-    shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
     docker: *BUILDIMAGE
@@ -186,7 +175,6 @@ jobs:
           $awscli s3 sync ./dist s3://$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
 
   stage-gcs-prod:
-    shell: /bin/bash --login
     docker: *GCSIMAGE
     steps:
       - checkout
@@ -208,7 +196,6 @@ jobs:
           gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
 
   deploy-aws-stable:
-    shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
     docker: *BUILDIMAGE
@@ -223,7 +210,6 @@ jobs:
       - run: $awscli s3 sync ./dist s3://$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
 
   deploy-gcs-stable:
-    shell: /bin/bash --login
     docker: *GCSIMAGE
     steps:
       - checkout
@@ -237,7 +223,6 @@ jobs:
       - run: gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
 
   generate-artifacts:
-    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
