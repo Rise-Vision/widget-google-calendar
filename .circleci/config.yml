@@ -3,10 +3,8 @@ version: 2
 jobs:
   preconditions:
     working_directory: ~/Rise-Vision/widget-google-calendar
-    shell: /bin/bash --login
     docker: &BUILDIMAGE
-      - image: circleci/build-image:ubuntu-14.04-XXL-upstart-1189-5614f37
-        command: /sbin/init
+      - image: jenkinsrise/cci-v2-transitional-widgets:0.0.4
     steps:
       - checkout
       - run: |
@@ -24,18 +22,15 @@ jobs:
 
   setup:
     working_directory: ~/Rise-Vision/widget-google-calendar
-    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
       - restore_cache:
-          key: node-cache-{{ checksum "package.json" }}
-      - run: nvm install 6.9.1 && nvm alias default 6.9.1
-      - run: npm install -g gulp bower casperjs
+          key: node-cache-v3-{{ checksum "package.json" }}
       - run: npm install
       - run: bower install
       - save_cache:
-          key: node-cache-{{ checksum "package.json" }}
+          key: node-cache-v3-{{ checksum "package.json" }}
           paths:
             - ./node_modules
       - persist_to_workspace:
@@ -57,52 +52,26 @@ jobs:
           paths:
             - gcloud
 
-  aws-setup:
-    docker: *BUILDIMAGE
-    steps:
-      - restore_cache:
-          key: aws-cache2
-      - run: |
-          if [[ ! -d /home/ubuntu/aws ]]
-          then
-            sudo apt-get update
-            sudo apt-get install python-dev
-            curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" && unzip awscli-bundle.zip && sudo ./awscli-bundle/install -i /home/ubuntu/aws
-          fi
-      - save_cache:
-          key: aws-cache2
-          paths:
-            - /home/ubuntu/aws
-
   test:
     working_directory: ~/Rise-Vision/widget-google-calendar
-    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
           at: .
       - restore_cache:
-          key: node-cache-{{ checksum "package.json" }}
-      # latest stable chrome
-      - run: curl -L -o google-chrome-stable.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-      - run: sudo dpkg -i google-chrome-stable.deb
-      # make chrome lxc-friendly
-      - run: sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
-      - run: nvm install 6.9.1 && nvm alias default 6.9.1
+          key: node-cache-v3-{{ checksum "package.json" }}
       - run: NODE_ENV=dev npm run test
 
   build:
     working_directory: ~/Rise-Vision/widget-google-calendar
-    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
           at: .
       - restore_cache:
-          key: node-cache-{{ checksum "package.json" }}
-      - run: nvm install 6.9.1 && nvm alias default 6.9.1
+          key: node-cache-v3-{{ checksum "package.json" }}
       - run: |
           if [ "${CIRCLE_BRANCH}" != "master" ]; then
             NODE_ENV=test npm run build
@@ -118,16 +87,14 @@ jobs:
             - test_dist
 
   stage-aws-dev:
-    shell: /bin/bash --login
     environment:
-      awscli: /home/ubuntu/aws/bin/aws
+      awscli: /usr/local/bin/aws
+    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - restore_cache:
-          key: aws-cache2
       - run: |
           STAGE_ENV="$(git log -1 --pretty=%B | grep '\[.*\]' |sed -e 's/.*\[\(.*\)\].*/\1/g')"
           if [ "$STAGE_ENV" != '' ]
@@ -163,16 +130,14 @@ jobs:
           gsutil rsync -d -r test_dist gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
 
   stage-aws-prod:
-    shell: /bin/bash --login
     environment:
-      awscli: /home/ubuntu/aws/bin/aws
+      awscli: /usr/local/bin/aws
+    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - restore_cache:
-          key: aws-cache2
       - run: |
           STAGE_ENV="$(git log -1 --pretty=%B | grep '\[.*\]' |sed -e 's/.*\[\(.*\)\].*/\1/g')"
           if [ "$STAGE_ENV" != '' ]
@@ -208,16 +173,14 @@ jobs:
           gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
 
   deploy-aws-stable:
-    shell: /bin/bash --login
     environment:
-      awscli: /home/ubuntu/aws/bin/aws
+      awscli: /usr/local/bin/aws
+    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - restore_cache:
-          key: aws-cache2
       - run: echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME
       - run: $awscli s3 ls s3://$BUCKET_NAME || ($awscli s3 mb s3://$BUCKET_NAME && $awscli s3api put-bucket-acl --bucket $BUCKET_NAME --grant-read 'uri="http://acs.amazonaws.com/groups/global/AllUsers"')
       - run: $awscli s3 sync ./dist s3://$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
@@ -237,7 +200,6 @@ jobs:
       - run: gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
 
   generate-artifacts:
-    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
@@ -255,9 +217,6 @@ workflows:
       - setup:
           requires:
             - preconditions
-      - aws-setup:
-          requires:
-            - preconditions
       - gcloud-setup:
           requires:
             - preconditions
@@ -270,7 +229,6 @@ workflows:
       - stage-aws-dev:
           requires:
             - build
-            - aws-setup
           filters:
             branches:
               only:
@@ -286,7 +244,6 @@ workflows:
       - stage-aws-prod:
           requires:
             - build
-            - aws-setup
           filters:
             branches:
               only:
@@ -302,7 +259,6 @@ workflows:
       - deploy-aws-stable:
           requires:
             - build
-            - aws-setup
           filters:
             branches:
               only:
