@@ -46,7 +46,7 @@
               "summary": "Secure welcomes Raytheon"
             },
             {
-              "description": "Our weekly football game. All proceeds go to charity.",
+              "description": "Our weekly football game. &lt;/br&gt; All proceeds go to charity &amp; volunteers welcome.",
               "end": {
                 "dateTime": moment().hour(19).minute(0).second(0).add(6, "days").format()
               },
