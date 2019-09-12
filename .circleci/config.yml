@@ -61,12 +61,6 @@ jobs:
           at: .
       - restore_cache:
           key: node-cache-v3-{{ checksum "package.json" }}
-      # latest stable chrome
-      - run: curl -L -o google-chrome-stable.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-      - run: sudo dpkg -i google-chrome-stable.deb
-      # make chrome lxc-friendly
-      - run: sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
-      - run: nvm install 6.9.1 && nvm alias default 6.9.1
       - run: NODE_ENV=dev npm run test
 
   build:
