@@ -118,7 +118,7 @@ casper.test.begin("e2e Testing - UI", {
 
         test.assertSelectorHasText(".day:nth-child(3) .event:nth-child(1) .summary", "Football Game", "Summary");
         test.assertSelectorHasText(".day:nth-child(3) .event:nth-child(1) .location", "Arena", "Location");
-        test.assertSelectorHasText(".day:nth-child(3) .event:nth-child(1) .description", "Our weekly football game. <\/br> All proceeds go to charity & volunteers welcome.", "Description");
+        test.assertSelectorHasText(".day:nth-child(3) .event:nth-child(1) .description", "Our weekly football game. </br> All proceeds go to charity & volunteers welcome.", "Description");
 
         test.assertNotVisible(".error", "No error message is shown");
       });
