@@ -84,14 +84,14 @@ casper.test.begin("e2e Testing - UI", {
         test.assertSelectorHasText(".day:nth-child(1) .event:nth-child(2) .location", "Conference Room B", "Location");
         test.assertSelectorHasText(".day:nth-child(1) .event:nth-child(2) .description", "This occurs all day today.", "Description");
 
-        /*test.comment("Single Day Event (Goes over to next day) - Today");
+        test.comment("Single Day Event (Goes over to next day) - Today");
 
         test.assertSelectorHasText(".day:nth-child(1) .event:nth-child(4) .time", this.evaluate(function() {
           return moment().hour(23).minute(30).second(0).format("h:mma") + " - " + moment().hour(0).minute(30).second(0).add(1, "days").format("h:mma");
         }), "Time");
         test.assertSelectorHasText(".day:nth-child(1) .event:nth-child(4) .summary", "Single Day Event (Over two days)", "Summary");
         test.assertSelectorHasText(".day:nth-child(1) .event:nth-child(4) .location", "Somewhere", "Location");
-        test.assertSelectorHasText(".day:nth-child(1) .event:nth-child(4) .description", "This occurs from today 11:30pm to tomorrow 12:30am.", "Description");*/
+        test.assertSelectorHasText(".day:nth-child(1) .event:nth-child(4) .description", "This occurs from today 11:30pm to tomorrow 12:30am.", "Description");
 
 
         test.comment("Multi-Day Event (All Day) - Tomorrow");
