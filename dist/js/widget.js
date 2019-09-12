@@ -6262,7 +6262,7 @@ RiseVision.Calendar.Event = (function () {
     var parser = new DOMParser; // jshint ignore:line
     var dom = parser.parseFromString( "<!doctype html><body>" + str, "text/html");
 
-    return dom.body.textContent;
+    return dom ? dom.body.textContent : str;
   }
 
   /*
