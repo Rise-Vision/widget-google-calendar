@@ -89,6 +89,7 @@ jobs:
   stage-aws-dev:
     environment:
       awscli: /usr/local/bin/aws
+    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
@@ -131,6 +132,7 @@ jobs:
   stage-aws-prod:
     environment:
       awscli: /usr/local/bin/aws
+    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
@@ -173,6 +175,7 @@ jobs:
   deploy-aws-stable:
     environment:
       awscli: /usr/local/bin/aws
+    shell: /bin/bash --login
     docker: *BUILDIMAGE
     steps:
       - checkout
