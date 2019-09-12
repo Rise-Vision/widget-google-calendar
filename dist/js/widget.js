@@ -6256,6 +6256,16 @@ RiseVision.Calendar.Event = (function () {
   "use strict";
 
   /*
+   * Private Methods
+   */
+  function _getDecodedString( str ) {
+    var parser = new DOMParser; // jshint ignore:line
+    var dom = parser.parseFromString( "<!doctype html><body>" + str, "text/html");
+
+    return dom ? dom.body.textContent : str;
+  }
+
+  /*
    *  Public Methods
    */
   function add($day, pos, event, params) {
@@ -6315,7 +6325,7 @@ RiseVision.Calendar.Event = (function () {
     }
 
     if ((params.showDescription === undefined || params.showDescription) && event.description) {
-      $day.find(".description").eq(pos).html(event.description);
+      $day.find(".description").eq(pos).html( _getDecodedString( event.description ) );
     }
     else {
       $day.find(".description").eq(pos).hide();
