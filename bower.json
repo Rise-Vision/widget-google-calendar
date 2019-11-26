@@ -33,6 +33,7 @@
     "angular": "1.2.18",
     "angular-route": "1.2.18",
     "auto-scroll": "https://github.com/Rise-Vision/auto-scroll.git#2.0.2",
+    "jquery": "~3.3.1",
     "moment": "~2.8.3",
     "moment-range": "~1.0.5",
     "rv-common-style": "https://github.com/Rise-Vision/common-style.git#1.1.12",
@@ -44,8 +45,6 @@
   "resolutions": {
     "angular": "1.2.18",
     "angular-bootstrap": "~0.11.1",
-    "angular-translate": "~2.5.2",
-    "angular-translate-loader-static-files": "~2.5.2",
-    "jquery": "1.11.0"
+    "jquery": "~3.3.1"
   }
 }
