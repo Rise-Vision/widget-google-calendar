@@ -6,3 +6,4 @@ src/config/config.js
 tmp
 src/*-e2e.html
 reports/
+.project
