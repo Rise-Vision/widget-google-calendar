@@ -82,9 +82,10 @@ RiseVision.Calendar = (function (gadgets) {
           if (reason.result.error.code && reason.result.error.code === -1) {
             startRefreshTimer();
           }
-          else {
-            $(".error").show();
-          }
+          // issue 152 - do not show any messages on display
+          // else {
+          //   $(".error").show();
+          // }
         }
 
         if (isLoading) {
