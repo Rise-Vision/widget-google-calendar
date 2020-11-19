@@ -1,5 +1,6 @@
 *.log
 src/components/
+dist/
 node_modules/
 coverage/
 src/config/config.js
