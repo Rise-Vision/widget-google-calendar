@@ -76,7 +76,7 @@ RiseVision.Calendar = (function (gadgets) {
           logEvent( {
             "event": "error",
             "event_details": errorMessage
-          } );
+          }, { severity: "error", errorCode: "E000000062" } );
 
           // Network error. Retry later.
           if (reason.result.error.code && reason.result.error.code === -1) {
@@ -333,8 +333,12 @@ RiseVision.Calendar = (function (gadgets) {
     gadgets.rpc.call("", "rsevent_done", null, prefs.getString("id"));
   }
 
-  function logEvent( params ) {
-    RiseVision.Common.LoggerUtils.logEvent( "calendar_events", params );
+  function logEvent(params, endpointLoggingFields) {
+    if ( endpointLoggingFields ) {
+      endpointLoggingFields.eventApp = "widget-calendar";
+    }
+
+    RiseVision.Common.LoggerUtils.logEvent( "calendar_events", params, endpointLoggingFields );
   }
 
   /*
@@ -360,6 +364,7 @@ RiseVision.Calendar = (function (gadgets) {
         }
         RiseVision.Common.LoggerUtils.setIds( companyId, displayId );
         RiseVision.Common.LoggerUtils.setVersion( version );
+        RiseVision.Common.LoggerUtils.startEndpointHeartbeats( "widget-calendar" );
 
       if ( names[ 2 ] === "additionalParams" ) {
           params = JSON.parse( values[ 2 ] );
@@ -392,7 +397,11 @@ RiseVision.Calendar = (function (gadgets) {
           "class": "description",
           "fontStyle": params.descriptionFont
         }
-      ];
+      ],
+        configParams = {
+          "event": "configuration",
+          "calendar_id": params.calendar || "no calendar id"
+        };
 
       utils.loadFonts(fontSettings);
 
@@ -415,10 +424,7 @@ RiseVision.Calendar = (function (gadgets) {
 
       getEventsList();
 
-      logEvent( {
-        "event": "configuration",
-        "calendar_id": params.calendar || "no calendar id"
-      } );
+      logEvent( configParams, { severity: "info", debugInfo: JSON.stringify( configParams ) } );
     }
 
 
