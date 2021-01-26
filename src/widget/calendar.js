@@ -400,6 +400,7 @@ RiseVision.Calendar = (function (gadgets) {
       ],
         configParams = {
           "event": "configuration",
+          "event_details": JSON.stringify( params ),
           "calendar_id": params.calendar || "no calendar id"
         };
 
@@ -424,7 +425,7 @@ RiseVision.Calendar = (function (gadgets) {
 
       getEventsList();
 
-      logEvent( configParams, { severity: "info", debugInfo: JSON.stringify( configParams ) } );
+      logEvent( configParams, { severity: "info", debugInfo: JSON.stringify( { event: "configuration", calendar_id: configParams.calendar_id } ) } );
     }
 
 
