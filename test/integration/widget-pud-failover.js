@@ -11,7 +11,7 @@ casper.test.begin("Integration Testing - PUD Failover", {
     casper.options.clientScripts = [
       "test/data/pud-failover.js",
       "test/calendar-api-mock.js",
-      "node_modules/widget-tester/sinon/pkg/sinon.js"
+      "node_modules/sinon/pkg/sinon.js"
     ];
 
     casper.options.viewportSize = { width: 800, height: 1600 };
