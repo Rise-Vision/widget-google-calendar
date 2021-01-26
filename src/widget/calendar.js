@@ -1,4 +1,4 @@
-/* global gadgets, moment, _ */
+/* global gadgets, moment, _, version */
 
 var RiseVision = RiseVision || {};
 RiseVision.Calendar = {};
@@ -359,8 +359,9 @@ RiseVision.Calendar = (function (gadgets) {
           }
         }
         RiseVision.Common.LoggerUtils.setIds( companyId, displayId );
+        RiseVision.Common.LoggerUtils.setVersion( version );
 
-        if ( names[ 2 ] === "additionalParams" ) {
+      if ( names[ 2 ] === "additionalParams" ) {
           params = JSON.parse( values[ 2 ] );
 
           setAdditionalParams( params );
