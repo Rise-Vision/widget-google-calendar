@@ -43,8 +43,7 @@ casper.test.begin("Integration Testing - PUD Failover", {
         return playSpy.called;
       });
 
-      // TODO: revisit why this doesn't work
-      // test.assert(spyCalledOnce, "PUD timer not fired");
+      test.assert(spyCalledOnce, "PUD timer not fired");
     });
 
     casper.run(function runTest() {

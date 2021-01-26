@@ -185,6 +185,7 @@
       "src/components/widget-common/dist/config.js",
       "src/components/widget-common/dist/logger.js",
       "src/components/widget-common/dist/common.js",
+      "src/config/version.js",
       "src/widget/calendar.js",
       "src/widget/main.js",
       "src/widget/day.js",
