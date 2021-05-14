@@ -5,6 +5,7 @@ var url = "http://localhost:"+e2ePort+"/src/widget-e2e.html";
 casper.test.begin("e2e Testing - Show end times for events longer than one hour", {
   setUp: function(test) {
     casper.options.clientScripts = [
+      "node_modules/babel-polyfill/dist/polyfill.js",
       "test/data/show-end-extended.js",
       "test/calendar-api-mock.js"
     ];

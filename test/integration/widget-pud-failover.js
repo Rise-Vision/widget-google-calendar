@@ -9,6 +9,7 @@ casper.on("remote.message", function(message) {
 casper.test.begin("Integration Testing - PUD Failover", {
   setUp: function(test) {
     casper.options.clientScripts = [
+      "node_modules/babel-polyfill/dist/polyfill.js",
       "test/data/pud-failover.js",
       "test/calendar-api-mock.js",
       "node_modules/sinon/pkg/sinon.js"

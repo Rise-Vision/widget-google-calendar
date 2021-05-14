@@ -5,6 +5,7 @@ var url = "http://localhost:"+e2ePort+"/src/widget-e2e.html";
 casper.test.begin("e2e Testing - Hide Date, Time, Title, Location & Description", {
   setUp: function(test) {
     casper.options.clientScripts = [
+      "node_modules/babel-polyfill/dist/polyfill.js"
       "test/data/hide-all-sections.js",
       "test/calendar-api-mock.js"
     ];

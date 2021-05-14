@@ -5,6 +5,7 @@ var url = "http://localhost:"+e2ePort+"/src/widget-e2e.html";
 casper.test.begin("e2e Testing - Never show end times", {
   setUp: function(test) {
     casper.options.clientScripts = [
+      "node_modules/babel-polyfill/dist/polyfill.js",
       "test/data/show-end-never.js",
       "test/calendar-api-mock.js"
     ];
