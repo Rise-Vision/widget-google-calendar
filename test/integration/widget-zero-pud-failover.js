@@ -1,6 +1,7 @@
 var system = require("system");
 var e2ePort = system.env.E2E_PORT || 8099;
 var url = "http://localhost:"+e2ePort+"/src/widget-e2e.html";
+var Promise = require('es6-promise').Promise;
 
 casper.on("remote.message", function(message) {
   this.echo(message);
@@ -9,7 +10,6 @@ casper.on("remote.message", function(message) {
 casper.test.begin("Integration Testing - Zero PUD Failover", {
   setUp: function(test) {
     casper.options.clientScripts = [
-      "node_modules/babel-polyfill/dist/polyfill.js",
       "test/data/pud-failover-zero.js",
       "test/calendar-api-mock.js",
       "node_modules/sinon/pkg/sinon.js"
