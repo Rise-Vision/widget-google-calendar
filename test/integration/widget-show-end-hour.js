@@ -1,7 +1,8 @@
+require('es6-promise').polyfill();
+
 var system = require("system");
 var e2ePort = system.env.E2E_PORT || 8099;
 var url = "http://localhost:"+e2ePort+"/src/widget-e2e.html";
-var Promise = require('es6-promise').Promise;
 
 casper.test.begin("e2e Testing - Show end times for events one hour long", {
   setUp: function(test) {
