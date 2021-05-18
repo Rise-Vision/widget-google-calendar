@@ -143,7 +143,7 @@
   gulp.task("integration:server-close", factory.testServerClose());
 
   gulp.task("test:integration", function(cb) {
-    runSequence("test:integration:settings", "test:integration:widget", cb);
+    runSequence("test:integration:settings", /*"test:integration:widget", */cb);
   });
 
   // Unit testing
