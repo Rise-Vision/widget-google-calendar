@@ -174,6 +174,7 @@
 
   gulp.task("test:unit:widget", factory.testUnitAngular({
     testFiles: [
+      "node_modules/babel-polyfill/dist/polyfill.js",
       "src/components/jquery/dist/jquery.js",
       "test/data/main.js",
       "src/components/auto-scroll/dist/jquery.auto-scroll.js",

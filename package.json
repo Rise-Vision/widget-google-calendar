@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Rise-Vision/widget-google-calendar",
   "devDependencies": {
+    "babel-polyfill": "^6.26.0",
     "bower": "^1.7.9",
     "chai": "^2.1.2",
     "chai-as-promised": "^4.3.0",
