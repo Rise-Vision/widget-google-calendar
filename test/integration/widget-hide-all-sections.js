@@ -2,6 +2,7 @@ var system = require("system");
 var e2ePort = system.env.E2E_PORT || 8099;
 var url = "http://localhost:"+e2ePort+"/src/widget-e2e.html";
 
+
 casper.test.begin("e2e Testing - Hide Date, Time, Title, Location & Description", {
   setUp: function(test) {
     casper.options.clientScripts = [

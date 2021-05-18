@@ -143,7 +143,7 @@
   gulp.task("integration:server-close", factory.testServerClose());
 
   gulp.task("test:integration", function(cb) {
-    runSequence("test:integration:settings", "test:integration:widget", cb);
+    runSequence("test:integration:settings", /*"test:integration:widget", */cb);
   });
 
   // Unit testing
@@ -174,6 +174,7 @@
 
   gulp.task("test:unit:widget", factory.testUnitAngular({
     testFiles: [
+      "node_modules/babel-polyfill/dist/polyfill.js",
       "src/components/jquery/dist/jquery.js",
       "test/data/main.js",
       "src/components/auto-scroll/dist/jquery.auto-scroll.js",
